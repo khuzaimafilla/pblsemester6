@@ -16,3 +16,8 @@ Route::get('/tentang', [PageController::class, 'tentang'])->name('tentang');
 
 Route::get('/analisa', [WaterAnalysisController::class, 'index'])->name('analisa');
 Route::post('/analyze', [WaterAnalysisController::class, 'analyze'])->name('analyze');
+
+// routes/web.php
+Route::get('/wawasan', function () {
+    return view('wawasan');
+});
