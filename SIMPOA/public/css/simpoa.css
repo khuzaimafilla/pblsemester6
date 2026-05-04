@@ -1,0 +1,277 @@
+/* =========================================
+   SIMPOA - Global Stylesheet
+   ========================================= */
+
+/* ---- Reset & Base ---- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #f0f9fd;
+    color: #2c4a56;
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* =========================================
+   NAVBAR
+   ========================================= */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(74, 175, 207, 0.1);
+    transition: all 0.3s ease;
+    height: 72px;
+}
+
+/* Scrolled state - slightly more opaque */
+.navbar.scrolled {
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom-color: rgba(74, 175, 207, 0.2);
+    box-shadow: 0 4px 24px rgba(74, 175, 207, 0.08);
+}
+
+.navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 48px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ---- Brand / Logo ---- */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.navbar-brand:hover {
+    opacity: 0.85;
+}
+
+.logo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover .logo-icon {
+    transform: rotate(-5deg) scale(1.05);
+}
+
+.brand-name {
+    font-size: 20px;
+    font-weight: 800;
+    color: #2A9FBF;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* ---- Nav Links ---- */
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-link {
+    position: relative;
+    font-size: 15px;
+    font-weight: 500;
+    color: #7a9eaa;
+    padding: 8px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: color 0.25s ease, background 0.25s ease;
+    letter-spacing: 0.2px;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: #3AAFCF;
+    border-radius: 2px;
+    transition: width 0.25s ease;
+}
+
+.nav-link:hover {
+    color: #2A9FBF;
+    background: rgba(58, 175, 207, 0.06);
+}
+
+.nav-link:hover::after {
+    width: calc(100% - 40px);
+}
+
+.nav-link.active {
+    color: #2A9FBF;
+    font-weight: 700;
+}
+
+.nav-link.active::after {
+    width: calc(100% - 40px);
+}
+
+/* ---- Hamburger (Mobile) ---- */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.hamburger:hover {
+    background: rgba(58, 175, 207, 0.08);
+}
+
+.hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: #3AAFCF;
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    transform-origin: center;
+}
+
+/* Hamburger open state */
+.hamburger.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+.hamburger.open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+.hamburger.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* =========================================
+   MAIN CONTENT
+   ========================================= */
+.main-content {
+    /* Offset for fixed navbar */
+}
+
+/* =========================================
+   FOOTER
+   ========================================= */
+.footer {
+    background: #0a1a22;
+    padding: 28px 48px;
+    text-align: center;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-text {
+    font-size: 13.5px;
+    color: rgba(110, 170, 195, 0.6);
+    font-style: italic;
+    letter-spacing: 0.3px;
+}
+
+/* =========================================
+   MOBILE RESPONSIVE
+   ========================================= */
+@media (max-width: 768px) {
+    .navbar-container {
+        padding: 0 20px;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .navbar-nav {
+        position: fixed;
+        top: 72px;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(20px);
+        flex-direction: column;
+        padding: 20px;
+        gap: 4px;
+        border-bottom: 1px solid rgba(74, 175, 207, 0.15);
+        box-shadow: 0 8px 24px rgba(74, 175, 207, 0.1);
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        z-index: 999;
+    }
+
+    .navbar-nav.open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .nav-link {
+        width: 100%;
+        text-align: center;
+        padding: 12px 24px;
+        font-size: 16px;
+    }
+
+    .footer {
+        padding: 20px 24px;
+    }
+}
+
+/* =========================================
+   UTILITY CLASSES
+   ========================================= */
+.text-primary { color: #2A9FBF; }
+.text-muted   { color: #7a9eaa; }
+.fw-bold      { font-weight: 700; }
+.fw-extrabold { font-weight: 800; }
