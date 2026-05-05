@@ -7,16 +7,15 @@ use Illuminate\Http\Request;
 class PageController extends Controller
 {
     /**
-     * Halaman Beranda / Landing Page
+     * Landing Page / Beranda
      */
     public function beranda()
     {
-        return view('pages.beranda');
+        return view('pages.landing');
     }
 
     /**
-     * Halaman Prosedur / Cek Air
-     * (Diisi sesuai kebutuhan tim lain)
+     * Halaman Prosedur
      */
     public function prosedur()
     {
@@ -28,6 +27,18 @@ class PageController extends Controller
      */
     public function tentang()
     {
-        return view('pages.about.blade');
+        return view('pages.about');
+    }
+
+    // Halaman Wawasan Kandungan Air
+    public function wawasan()
+    {
+        return view('pages.wawasan');
+    }
+
+    // Halaman Coba Form Input
+    public function form()
+    {
+        return view('pages.input');
     }
 }

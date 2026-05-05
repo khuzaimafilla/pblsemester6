@@ -6,9 +6,9 @@ use Illuminate\Http\Request;
 
 class WaterAnalysisController extends Controller
 {
-    public function index()
+    public function form()
     {
-        return view('home');
+        return view('pages.input');
     }
 
     public function analyze(Request $request)
@@ -25,15 +25,28 @@ class WaterAnalysisController extends Controller
             'turbidity' => 'required|numeric',
         ]);
 
-        $result = 'Layak';
+        // 🔥 LOGIC DUMMY (sementara)
+        $isLayak = true;
 
         if (
             $request->ph < 6.5 || $request->ph > 8.5 ||
             $request->turbidity > 5
         ) {
-            $result = 'Tidak Layak';
+            $isLayak = false;
         }
 
-        return back()->with('result', $result);
+        $result = $isLayak ? 'LAYAK' : 'TIDAK';
+        $probability = $isLayak ? 96.5 : 53.7;
+
+        return redirect()->route('hasil')->with([
+            'result' => $result,
+            'probability' => $probability,
+            'data' => $request->all()
+        ]);
+    }
+
+    public function hasil()
+    {
+        return view('pages.hasil');
     }
 }
