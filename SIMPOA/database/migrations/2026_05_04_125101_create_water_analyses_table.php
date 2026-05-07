@@ -12,9 +12,23 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('water_analyses', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        $table->id();
+
+        $table->double('ph');
+        $table->double('hardness');
+        $table->double('solids');
+        $table->double('chloramines');
+        $table->double('sulfate');
+        $table->double('conductivity');
+        $table->double('organic_carbon');
+        $table->double('trihalomethanes');
+        $table->double('turbidity');
+
+        $table->string('result');
+        $table->double('probability');
+
+        $table->timestamps();
+    });
     }
 
     /**

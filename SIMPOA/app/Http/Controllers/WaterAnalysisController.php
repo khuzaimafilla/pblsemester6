@@ -3,17 +3,27 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Symfony\Component\Process\Process;
 
 class WaterAnalysisController extends Controller
 {
+    // =========================
+    // PAGE FORM INPUT
+    // =========================
     public function form()
     {
         return view('pages.input');
     }
 
+    // =========================
+    // ANALISIS AI
+    // =========================
     public function analyze(Request $request)
     {
-        $request->validate([
+        // =========================
+        // VALIDASI INPUT
+        // =========================
+        $validated = $request->validate([
             'ph' => 'required|numeric',
             'hardness' => 'required|numeric',
             'solids' => 'required|numeric',
@@ -25,26 +35,73 @@ class WaterAnalysisController extends Controller
             'turbidity' => 'required|numeric',
         ]);
 
-        // 🔥 LOGIC DUMMY (sementara)
-        $isLayak = true;
+        // =========================
+        // FORMAT DATA UNTUK PYTHON
+        // =========================
+        $input = [
+            "ph" => (float)$validated['ph'],
+            "Hardness" => (float)$validated['hardness'],
+            "Solids" => (float)$validated['solids'],
+            "Chloramines" => (float)$validated['chloramines'],
+            "Sulfate" => (float)$validated['sulfate'],
+            "Conductivity" => (float)$validated['conductivity'],
+            "Organic_carbon" => (float)$validated['organic_carbon'],
+            "Trihalomethanes" => (float)$validated['trihalomethanes'],
+            "Turbidity" => (float)$validated['turbidity'],
+        ];
 
-        if (
-            $request->ph < 6.5 || $request->ph > 8.5 ||
-            $request->turbidity > 5
-        ) {
-            $isLayak = false;
+        // =========================
+        // RUN PYTHON AI
+        // =========================
+        $process = new Process([
+            'C:\\Users\\LENOVO\\AppData\\Local\\Programs\\Python\\Python311\\python.exe',
+            base_path('python-ai/predict.py'),
+            json_encode($input)
+        ]);
+
+        // =========================
+        // FIX WINDOWS ENV
+        // =========================
+        $process->setEnv([
+            'SYSTEMROOT' => getenv('SYSTEMROOT'),
+            'WINDIR' => getenv('WINDIR'),
+            'PATH' => getenv('PATH'),
+        ]);
+
+        $process->run();
+
+        // =========================
+        // JIKA PYTHON ERROR
+        // =========================
+        if (!$process->isSuccessful()) {
+            dd($process->getErrorOutput());
         }
 
-        $result = $isLayak ? 'LAYAK' : 'TIDAK';
-        $probability = $isLayak ? 96.5 : 53.7;
+        // =========================
+        // AMBIL HASIL AI
+        // =========================
+        $result = json_decode($process->getOutput(), true);
 
-        return redirect()->route('hasil')->with([
-            'result' => $result,
-            'probability' => $probability,
-            'data' => $request->all()
+        // =========================
+        // JIKA OUTPUT NULL
+        // =========================
+        if (!$result) {
+            dd($process->getOutput());
+        }
+
+        // =========================
+        // KIRIM KE PAGE HASIL
+        // =========================
+        return view('pages.hasil', [
+            'result' => $result['result'],
+            'probability' => $result['probability'],
+            'data' => $validated
         ]);
     }
 
+    // =========================
+    // PAGE HASIL
+    // =========================
     public function hasil()
     {
         return view('pages.hasil');

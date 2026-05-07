@@ -8,4 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class WaterAnalysis extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'ph',
+        'hardness',
+        'solids',
+        'chloramines',
+        'sulfate',
+        'conductivity',
+        'organic_carbon',
+        'trihalomethanes',
+        'turbidity',
+        'result',
+        'probability',
+    ];
 }
