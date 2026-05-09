@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Symfony\Component\Process\Process;
+use App\Models\AnalysisHistory;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class WaterAnalysisController extends Controller
 {
@@ -24,15 +26,52 @@ class WaterAnalysisController extends Controller
         // VALIDASI INPUT
         // =========================
         $validated = $request->validate([
-            'ph' => 'required|numeric',
-            'hardness' => 'required|numeric',
-            'solids' => 'required|numeric',
-            'chloramines' => 'required|numeric',
-            'sulfate' => 'required|numeric',
-            'conductivity' => 'required|numeric',
-            'organic_carbon' => 'required|numeric',
-            'trihalomethanes' => 'required|numeric',
-            'turbidity' => 'required|numeric',
+
+            // pH
+            'ph' => 'required|numeric|min:0|max:14',
+
+            // Hardness
+            'hardness' => 'required|numeric|min:0|max:1000',
+
+            // TDS / Solids
+            'solids' => 'required|numeric|min:0|max:50000',
+
+            // Chloramines
+            'chloramines' => 'required|numeric|min:0|max:20',
+
+            // Sulfate
+            'sulfate' => 'required|numeric|min:0|max:1000',
+
+            // Conductivity
+            'conductivity' => 'required|numeric|min:0|max:2000',
+
+            // Organic Carbon
+            'organic_carbon' => 'required|numeric|min:0|max:50',
+
+            // Trihalomethanes
+            'trihalomethanes' => 'required|numeric|min:0|max:300',
+
+            // Turbidity
+            'turbidity' => 'required|numeric|min:0|max:100',
+
+        ], [
+
+            // =========================
+            // CUSTOM ERROR MESSAGE
+            // =========================
+
+            'ph.max' => 'Nilai pH maksimal adalah 14.',
+            'ph.min' => 'Nilai pH tidak boleh negatif.',
+
+            'hardness.min' => 'Hardness tidak boleh negatif.',
+            'solids.min' => 'TDS tidak boleh negatif.',
+            'chloramines.min' => 'Chloramines tidak boleh negatif.',
+            'sulfate.min' => 'Sulfate tidak boleh negatif.',
+            'conductivity.min' => 'Conductivity tidak boleh negatif.',
+            'organic_carbon.min' => 'Organic Carbon tidak boleh negatif.',
+            'trihalomethanes.min' => 'Trihalomethanes tidak boleh negatif.',
+            'turbidity.min' => 'Turbidity tidak boleh negatif.',
+
         ]);
 
         // =========================
@@ -90,11 +129,57 @@ class WaterAnalysisController extends Controller
         }
 
         // =========================
+        // CONFIDENCE LEVEL
+        // =========================
+        $probability = $result['probability'];
+
+        if ($probability >= 90) {
+
+            $confidence = 'Sangat Yakin';
+
+        } elseif ($probability >= 75) {
+
+            $confidence = 'Yakin';
+
+        } elseif ($probability >= 60) {
+
+            $confidence = 'Cukup';
+
+        } else {
+
+            $confidence = 'Rendah';
+
+        }
+
+        // =========================
+        // SAVE HISTORY DATABASE
+        // =========================
+        AnalysisHistory::create([
+
+            // PARAMETER
+            'ph' => $validated['ph'],
+            'hardness' => $validated['hardness'],
+            'solids' => $validated['solids'],
+            'chloramines' => $validated['chloramines'],
+            'sulfate' => $validated['sulfate'],
+            'conductivity' => $validated['conductivity'],
+            'organic_carbon' => $validated['organic_carbon'],
+            'trihalomethanes' => $validated['trihalomethanes'],
+            'turbidity' => $validated['turbidity'],
+
+            // AI RESULT
+            'result' => $result['result'],
+            'probability' => $probability,
+            'confidence' => $confidence,
+
+        ]);
+
+        // =========================
         // KIRIM KE PAGE HASIL
         // =========================
         return view('pages.hasil', [
             'result' => $result['result'],
-            'probability' => $result['probability'],
+            'probability' => $probability,
             'data' => $validated
         ]);
     }
@@ -105,5 +190,21 @@ class WaterAnalysisController extends Controller
     public function hasil()
     {
         return view('pages.hasil');
+    }
+
+    // =========================
+    // EXPORT PDF
+    // =========================
+    public function exportPdf(Request $request)
+    {
+        $pdf = Pdf::loadView('pages.pdf', [
+
+            'result' => $request->result,
+            'probability' => $request->probability,
+            'data' => json_decode($request->data, true),
+
+        ]);
+
+        return $pdf->download('SIMPOA-Analysis.pdf');
     }
 }

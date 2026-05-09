@@ -31,3 +31,4 @@ Route::get('/form', [PageController::class, 'form'])->name('form');
 Route::get('/form', [WaterAnalysisController::class, 'form'])->name('form');
 Route::post('/analyze', [WaterAnalysisController::class, 'analyze'])->name('analyze');
 Route::get('/hasil', [WaterAnalysisController::class, 'hasil'])->name('hasil');
+Route::post('/export-pdf', [WaterAnalysisController::class, 'exportPdf'])->name('export.pdf');

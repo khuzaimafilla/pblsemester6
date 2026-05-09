@@ -20,6 +20,27 @@
 
     $isLayak = $result === 'LAYAK';
 
+    // =========================
+    // CONFIDENCE LEVEL
+    // =========================
+    if ($probability >= 90) {
+
+        $confidence = 'Sangat Yakin';
+
+    } elseif ($probability >= 75) {
+
+        $confidence = 'Yakin';
+
+    } elseif ($probability >= 60) {
+
+        $confidence = 'Cukup';
+
+    } else {
+
+        $confidence = 'Rendah';
+
+    }
+
 @endphp
 
 <section style="min-height:100vh; padding:60px 0; text-align:center;">
@@ -50,16 +71,30 @@
                 AIR {{ $isLayak ? 'LAYAK' : 'TIDAK LAYAK' }} KONSUMSI
             </h1>
 
+            <!-- PROBABILITY -->
             <div style="
                 background:white;
                 color:#5BABD0;
-                padding:6px 20px;
+                padding:10px 22px;
                 border-radius:20px;
                 display:inline-block;
                 margin-top:10px;
                 font-weight:600;
+                line-height:1.6;
             ">
+
                 Probabilitas {{ $probability }}%
+
+                <br>
+
+                <span style="
+                    font-size:13px;
+                    font-weight:500;
+                    opacity:0.8;
+                ">
+                    Confidence: {{ $confidence }}
+                </span>
+
             </div>
 
         </div>
@@ -120,6 +155,8 @@
 
                 $warnings = [];
 
+                $dominantParameters = [];
+
                 $rows = [
                     ['pH', $data['ph'] ?? '-'],
                     ['Hardness', $data['hardness'] ?? '-'],
@@ -151,42 +188,88 @@
                     // =========================
                     if ($rule) {
 
+                        // =========================
                         // MIN MAX
+                        // =========================
                         if (
                             isset($rule['min']) &&
                             isset($rule['max'])
                         ) {
 
-                            if (
-                                $value < $rule['min'] ||
-                                $value > $rule['max']
-                            ) {
+                            // =========================
+                            // TERLALU RENDAH
+                            // =========================
+                            if ($value < $rule['min']) {
 
-                                $status = 'Tidak Normal';
+                                $status = $rule['low_status'] ?? 'Terlalu Rendah';
+
                                 $icon = '⚠️';
+
+                                $severity = abs($rule['min'] - $value);
+
+                                $dominantParameters[] = [
+                                    'parameter' => $parameter,
+                                    'severity' => $severity
+                                ];
 
                                 $warnings[] = [
                                     'parameter' => $parameter,
-                                    'danger' => $rule['danger'] ?? '',
-                                    'suggestion' => $rule['suggestion'] ?? '',
+                                    'danger' => $rule['low_danger'] ?? '',
+                                    'suggestion' => $rule['low_suggestion'] ?? '',
                                 ];
+
+                            }
+
+                            // =========================
+                            // TERLALU TINGGI
+                            // =========================
+                            elseif ($value > $rule['max']) {
+
+                                $status = $rule['high_status'] ?? 'Terlalu Tinggi';
+
+                                $icon = '⚠️';
+
+                                $severity = abs($value - $rule['max']);
+
+                                $dominantParameters[] = [
+                                    'parameter' => $parameter,
+                                    'severity' => $severity
+                                ];
+
+                                $warnings[] = [
+                                    'parameter' => $parameter,
+                                    'danger' => $rule['high_danger'] ?? '',
+                                    'suggestion' => $rule['high_suggestion'] ?? '',
+                                ];
+
                             }
 
                         }
 
+                        // =========================
                         // MAX ONLY
+                        // =========================
                         elseif (isset($rule['max'])) {
 
                             if ($value > $rule['max']) {
 
-                                $status = 'Tinggi';
+                                $status = $rule['high_status'] ?? 'Terlalu Tinggi';
+
                                 $icon = '⚠️';
+
+                                $severity = abs($value - $rule['max']);
+
+                                $dominantParameters[] = [
+                                    'parameter' => $parameter,
+                                    'severity' => $severity
+                                ];
 
                                 $warnings[] = [
                                     'parameter' => $parameter,
-                                    'danger' => $rule['danger'] ?? '',
-                                    'suggestion' => $rule['suggestion'] ?? '',
+                                    'danger' => $rule['high_danger'] ?? '',
+                                    'suggestion' => $rule['high_suggestion'] ?? '',
                                 ];
+
                             }
 
                         }
@@ -229,6 +312,53 @@
             </table>
 
         </div>
+
+        <!-- SORT DOMINANT -->
+        @php
+
+        usort($dominantParameters, function($a, $b) {
+            return $b['severity'] <=> $a['severity'];
+        });
+
+        $topDominants = array_slice($dominantParameters, 0, 3);
+
+        @endphp
+
+        <!-- DOMINANT PARAMETER -->
+        @if(count($topDominants) > 0)
+
+        <div style="
+            margin-top:30px;
+            background:rgba(255,255,255,0.5);
+            backdrop-filter:blur(10px);
+            border-radius:20px;
+            padding:25px;
+            text-align:left;
+        ">
+
+            <h3 style="
+                color:#5BABD0;
+                margin-bottom:20px;
+            ">
+                Parameter Paling Berpengaruh
+            </h3>
+
+            @foreach($topDominants as $dominant)
+
+            <div style="
+                margin-bottom:12px;
+                color:#5BABD0;
+                font-size:16px;
+                font-weight:600;
+            ">
+                ⚠️ {{ $dominant['parameter'] }}
+            </div>
+
+            @endforeach
+
+        </div>
+
+        @endif
 
         <!-- WARNING ANALYSIS -->
         @if(count($warnings) > 0)
@@ -278,22 +408,149 @@
 
         @endif
 
-        <!-- BUTTON -->
-        <button onclick="window.print()" style="
+        <!-- VISUALIZATION -->
+        <div style="
             margin-top:30px;
-            background:#5BABD0;
-            color:white;
-            padding:12px 40px;
-            border:none;
-            border-radius:15px;
-            cursor:pointer;
-            font-weight:600;
+            background:rgba(255,255,255,0.5);
+            backdrop-filter:blur(10px);
+            border-radius:20px;
+            padding:25px;
         ">
-            Cetak PDF
-        </button>
+
+            <h3 style="
+                color:#5BABD0;
+                margin-bottom:25px;
+            ">
+                Visualisasi Parameter Air
+            </h3>
+
+            <canvas id="waterChart"></canvas>
+
+        </div>
+
+        <!-- SOURCE -->
+        <p style="
+            margin-top:25px;
+            color:#7BAFCB;
+            font-size:13px;
+            line-height:1.6;
+        ">
+            Standar parameter mengacu pada WHO Drinking Water Guidelines
+            dan Permenkes No. 2 Tahun 2023.
+        </p>
+
+        <!-- BUTTON -->
+        <form action="{{ route('export.pdf') }}" method="POST">
+
+            @csrf
+
+            <input type="hidden" name="result" value="{{ $result }}">
+
+            <input type="hidden" name="probability" value="{{ $probability }}">
+
+            <input type="hidden" name="data"
+                value='@json($data)'>
+
+            <button type="submit" style="
+                margin-top:30px;
+                background:#5BABD0;
+                color:white;
+                padding:12px 40px;
+                border:none;
+                border-radius:15px;
+                cursor:pointer;
+                font-weight:600;
+            ">
+                Download PDF
+            </button>
+
+        </form>
 
     </div>
 
 </section>
+
+<!-- CHART JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const ctx = document.getElementById('waterChart');
+
+new Chart(ctx, {
+
+    type: 'bar',
+
+    data: {
+
+        labels: [
+            'pH',
+            'Hardness',
+            'TDS',
+            'Chloramines',
+            'Sulfate',
+            'Conductivity',
+            'Trihalomethanes',
+            'Turbidity'
+        ],
+
+        datasets: [{
+
+            label: 'Nilai Parameter',
+
+            data: [
+
+                {{ $data['ph'] ?? 0 }},
+                {{ $data['hardness'] ?? 0 }},
+                {{ $data['solids'] ?? 0 }},
+                {{ $data['chloramines'] ?? 0 }},
+                {{ $data['sulfate'] ?? 0 }},
+                {{ $data['conductivity'] ?? 0 }},
+                {{ $data['trihalomethanes'] ?? 0 }},
+                {{ $data['turbidity'] ?? 0 }}
+
+            ],
+
+            backgroundColor: [
+                '#5BABD0',
+                '#5BABD0',
+                '#5BABD0',
+                '#5BABD0',
+                '#5BABD0',
+                '#5BABD0',
+                '#5BABD0',
+                '#5BABD0'
+            ],
+
+            borderRadius: 10
+
+        }]
+    },
+
+    options: {
+
+        responsive: true,
+
+        plugins: {
+
+            legend: {
+                display: false
+            }
+
+        },
+
+        scales: {
+
+            y: {
+                beginAtZero: true
+            }
+
+        }
+
+    }
+
+});
+
+</script>
 
 @endsection

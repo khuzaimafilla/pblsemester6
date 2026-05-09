@@ -8,17 +8,27 @@
 
         <!-- HEADER -->
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:30px;">
+
             <img src="{{ asset('assets/logo-simpoa.png') }}" style="height:50px;">
 
             <div>
-                <h1 style="margin:0; color:#5BABD0;">
+
+                <h1 style="
+                    margin:0;
+                    color:#5BABD0;
+                ">
                     SIMPOA
                 </h1>
 
-                <p style="margin:0; color:#5BABD0;">
+                <p style="
+                    margin:0;
+                    color:#5BABD0;
+                ">
                     Sistem Potabilitas Air
                 </p>
+
             </div>
+
         </div>
 
         <!-- FORM CARD -->
@@ -31,26 +41,40 @@
         ">
 
             <form action="{{ route('analyze') }}" method="POST">
+
                 @csrf
 
                 @php
+
                 $fields = [
-                    ['ph','Derajat Keasaman (pH)','Skala 0-14','7.05'],
-                    ['hardness','Kesadahan','mg/L','185.20'],
-                    ['solids','TDS','ppm','15000'],
-                    ['chloramines','Kloramin','ppm','7.12'],
-                    ['sulfate','Sulfat','mg/L','330'],
-                    ['conductivity','Conductivity','µS/cm','450'],
-                    ['organic_carbon','TOC','ppm','15.3'],
-                    ['trihalomethanes','Trihalometana','µg/L','65'],
-                    ['turbidity','Turbidity','NTU','3.8'],
+
+                    ['ph','Derajat Keasaman (pH)','Skala 0-14','7.05',0,14],
+
+                    ['hardness','Kesadahan','mg/L','185.20',0,1000],
+
+                    ['solids','TDS','ppm','15000',0,50000],
+
+                    ['chloramines','Kloramin','ppm','7.12',0,20],
+
+                    ['sulfate','Sulfat','mg/L','330',0,1000],
+
+                    ['conductivity','Conductivity','µS/cm','450',0,2000],
+
+                    ['organic_carbon','TOC','ppm','15.3',0,50],
+
+                    ['trihalomethanes','Trihalometana','µg/L','65',0,300],
+
+                    ['turbidity','Turbidity','NTU','3.8',0,100],
+
                 ];
+
                 @endphp
 
                 @foreach($fields as $f)
 
                 <div style="margin-bottom:22px;">
 
+                    <!-- LABEL -->
                     <div style="
                         display:flex;
                         justify-content:space-between;
@@ -58,16 +82,26 @@
                         color:#5BABD0;
                         font-weight:600;
                     ">
+
                         <span>{{ $f[1] }}</span>
+
                         <span>{{ $f[2] }}</span>
+
                     </div>
 
+                    <!-- INPUT -->
                     <input
                         type="number"
                         step="any"
+
                         name="{{ $f[0] }}"
+
                         placeholder="Contoh: {{ $f[3] }}"
+
                         required
+
+                        min="{{ $f[4] }}"
+                        max="{{ $f[5] }}"
 
                         style="
                             width:100%;
@@ -92,7 +126,39 @@
                             this.style.borderColor='#BFE3F5';
                             this.style.boxShadow='none';
                         "
+
+                        oninput="
+
+                            const min = parseFloat(this.min);
+                            const max = parseFloat(this.max);
+                            const value = parseFloat(this.value);
+
+                            if(value < min || value > max)
+                            {
+                                this.style.borderColor='#DC2626';
+                                this.style.boxShadow='0 0 10px rgba(220,38,38,0.3)';
+                            }
+                            else
+                            {
+                                this.style.borderColor='#5BABD0';
+                                this.style.boxShadow='0 0 10px rgba(91,171,208,0.3)';
+                            }
+
+                        "
                     >
+
+                    <!-- ERROR -->
+                    @error($f[0])
+
+                    <div style="
+                        color:#DC2626;
+                        margin-top:8px;
+                        font-size:14px;
+                    ">
+                        {{ $message }}
+                    </div>
+
+                    @enderror
 
                 </div>
 
@@ -101,6 +167,7 @@
                 <!-- BUTTON -->
                 <button
                     type="button"
+
                     onclick="validateForm()"
 
                     style="
@@ -185,7 +252,10 @@
         </div>
 
         <!-- BUTTON -->
-        <div style="text-align:center; padding-bottom:35px;">
+        <div style="
+            text-align:center;
+            padding-bottom:35px;
+        ">
 
             <button
                 onclick="closeInfoModal()"
@@ -280,7 +350,6 @@
                     font-size:18px;
                     cursor:pointer;
                     font-weight:600;
-                    transition:0.3s;
                 "
             >
                 Tidak
@@ -298,11 +367,7 @@
                     font-size:18px;
                     cursor:pointer;
                     font-weight:600;
-                    transition:0.3s;
                 "
-
-                onmouseover="this.style.background='#3A929C'"
-                onmouseout="this.style.background='#5BABD0'"
             >
                 Ya
             </button>
@@ -313,16 +378,89 @@
 
 </div>
 
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(255,255,255,0.85);
+    backdrop-filter:blur(6px);
+    z-index:99999;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+">
+
+    <!-- SPINNER -->
+    <div style="
+        width:70px;
+        height:70px;
+        border:8px solid #D9EEF8;
+        border-top:8px solid #5BABD0;
+        border-radius:50%;
+        animation:spin 1s linear infinite;
+    ">
+    </div>
+
+    <!-- TEXT -->
+    <div style="
+        margin-top:25px;
+        color:#5BABD0;
+        font-size:24px;
+        font-weight:600;
+    ">
+        Menganalisis Kualitas Air...
+    </div>
+
+    <div style="
+        margin-top:10px;
+        color:#7BAFCB;
+        font-size:15px;
+    ">
+        Mohon tunggu sebentar
+    </div>
+
+</div>
+
+<style>
+
+@keyframes spin {
+
+    0% {
+        transform:rotate(0deg);
+    }
+
+    100% {
+        transform:rotate(360deg);
+    }
+
+}
+
+</style>
+
 <script>
 
 function validateForm()
 {
     const inputs = document.querySelectorAll('input');
+
     let valid = true;
 
     inputs.forEach(input => {
 
         if(input.value.trim() === '')
+        {
+            valid = false;
+        }
+
+        const min = parseFloat(input.min);
+        const max = parseFloat(input.max);
+        const value = parseFloat(input.value);
+
+        if(value < min || value > max)
         {
             valid = false;
         }
@@ -350,6 +488,20 @@ function closeConfirmModal()
 
 function submitForm()
 {
+    // TUTUP MODAL
+    document.getElementById('confirmModal').style.display = 'none';
+
+    // TAMPILKAN LOADING
+    document.getElementById('loadingOverlay').style.display = 'flex';
+
+    // DISABLE BUTTON
+    const buttons = document.querySelectorAll('button');
+
+    buttons.forEach(btn => {
+        btn.disabled = true;
+    });
+
+    // SUBMIT FORM
     document.querySelector('form').submit();
 }
 
