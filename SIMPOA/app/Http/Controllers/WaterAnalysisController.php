@@ -197,14 +197,213 @@ class WaterAnalysisController extends Controller
     // =========================
     public function exportPdf(Request $request)
     {
+        // =========================
+        // DATA
+        // =========================
+        $data = json_decode($request->data, true);
+
+        $result = $request->result;
+
+        $probability = $request->probability;
+
+        $isLayak = $result === 'LAYAK';
+
+        // =========================
+        // LOAD STANDARDS
+        // =========================
+        $standards = config('water_standards');
+
+        // =========================
+        // CONFIDENCE
+        // =========================
+        if ($probability >= 90) {
+
+            $confidence = 'Sangat Yakin';
+
+        } elseif ($probability >= 75) {
+
+            $confidence = 'Yakin';
+
+        } elseif ($probability >= 60) {
+
+            $confidence = 'Cukup';
+
+        } else {
+
+            $confidence = 'Rendah';
+
+        }
+
+        // =========================
+        // ROWS
+        // =========================
+        $rows = [
+            ['pH', $data['ph'] ?? '-'],
+            ['Hardness', $data['hardness'] ?? '-'],
+            ['TDS', $data['solids'] ?? '-'],
+            ['Chloramines', $data['chloramines'] ?? '-'],
+            ['Sulfate', $data['sulfate'] ?? '-'],
+            ['Conductivity', $data['conductivity'] ?? '-'],
+            ['Trihalomethanes', $data['trihalomethanes'] ?? '-'],
+            ['Turbidity', $data['turbidity'] ?? '-'],
+        ];
+
+        // =========================
+        // SAW
+        // =========================
+        $sawScore = 0;
+
+        $totalWeight = 0;
+
+        foreach ($rows as $row) {
+
+            $parameter = $row[0];
+
+            $value = (float)$row[1];
+
+            $rule = $standards[$parameter] ?? null;
+
+            if ($rule) {
+
+                $weight = $rule['weight'] ?? 0;
+
+                $totalWeight += $weight;
+
+                $parameterScore = 1;
+
+                if (
+                    isset($rule['min']) &&
+                    $value < $rule['min']
+                ) {
+
+                    $parameterScore = 0;
+
+                }
+
+                if (
+                    isset($rule['max']) &&
+                    $value > $rule['max']
+                ) {
+
+                    $parameterScore = 0;
+
+                }
+
+                $sawScore += ($parameterScore * $weight);
+
+            }
+
+        }
+
+        // =========================
+        // FINAL SAW
+        // =========================
+        $finalSaw = 0;
+
+        if ($totalWeight > 0) {
+
+            $finalSaw = ($sawScore / $totalWeight) * 100;
+
+        }
+
+        // =========================
+        // SAW CATEGORY
+        // =========================
+        if ($finalSaw >= 80) {
+
+            $sawCategory = 'Kualitas Sangat Baik';
+
+        } elseif ($finalSaw >= 60) {
+
+            $sawCategory = 'Kualitas Baik';
+
+        } elseif ($finalSaw >= 40) {
+
+            $sawCategory = 'Kualitas Sedang';
+
+        } else {
+
+            $sawCategory = 'Kualitas Buruk';
+
+        }
+
+        // =========================
+        // CRITICAL RULE
+        // =========================
+        $criticalFailed = false;
+
+        foreach ($rows as $row) {
+
+            $parameter = $row[0];
+
+            $value = (float)$row[1];
+
+            $rule = $standards[$parameter] ?? null;
+
+            if ($rule) {
+
+                if (
+                    isset($rule['critical_min']) &&
+                    $value < $rule['critical_min']
+                ) {
+
+                    $criticalFailed = true;
+
+                }
+
+                if (
+                    isset($rule['critical_max']) &&
+                    $value > $rule['critical_max']
+                ) {
+
+                    $criticalFailed = true;
+
+                }
+
+            }
+
+        }
+
+        // =========================
+        // HYBRID DECISION
+        // =========================
+        $hybridLayak = false;
+
+        if (
+
+            !$criticalFailed &&
+
+            (
+                $finalSaw >= 70 ||
+                ($isLayak && $finalSaw >= 60)
+            )
+
+        ) {
+
+            $hybridLayak = true;
+
+        }
+
+        // =========================
+        // PDF
+        // =========================
         $pdf = Pdf::loadView('pages.pdf', [
 
-            'result' => $request->result,
-            'probability' => $request->probability,
-            'data' => json_decode($request->data, true),
+            'data' => $data,
+            'result' => $result,
+            'probability' => $probability,
+            'confidence' => $confidence,
+            'standards' => $standards,
+            'rows' => $rows,
+            'finalSaw' => $finalSaw,
+            'sawCategory' => $sawCategory,
+            'hybridLayak' => $hybridLayak,
 
         ]);
 
-        return $pdf->download('SIMPOA-Analysis.pdf');
+        // =========================
+        // STREAM PDF
+        // =========================
+        return $pdf->stream('SIMPOA-Analysis.pdf');
     }
 }

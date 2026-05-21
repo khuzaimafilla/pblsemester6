@@ -47,90 +47,422 @@
 
     <div style="max-width:1000px; margin:auto; padding:0 80px;">
 
-        <!-- TITLE -->
-        <h2 style="
-            color:#5BABD0;
-            margin-bottom:20px;
-        ">
-            Hasil Analisis
-        </h2>
+        @php
 
-        <!-- RESULT BOX -->
+        $warnings = [];
+
+        $dominantParameters = [];
+
+        // =========================
+        // SAW SCORE
+        // =========================
+        $sawScore = 0;
+
+        $totalWeight = 0;
+
+        $rows = [
+            ['pH', $data['ph'] ?? '-'],
+            ['Hardness', $data['hardness'] ?? '-'],
+            ['TDS', $data['solids'] ?? '-'],
+            ['Chloramines', $data['chloramines'] ?? '-'],
+            ['Sulfate', $data['sulfate'] ?? '-'],
+            ['Conductivity', $data['conductivity'] ?? '-'],
+            ['Trihalomethanes', $data['trihalomethanes'] ?? '-'],
+            ['Turbidity', $data['turbidity'] ?? '-'],
+        ];
+
+        @endphp
+
+        {{-- ========================= --}}
+        {{-- LOOP PARAMETER --}}
+        {{-- ========================= --}}
+
+        @foreach($rows as $row)
+
+        @php
+
+            $parameter = $row[0];
+            $value = (float)$row[1];
+
+            $rule = $standards[$parameter] ?? null;
+
+            if ($rule) {
+
+                $weight = $rule['weight'] ?? 0;
+
+                $totalWeight += $weight;
+
+                $parameterScore = 1;
+
+                // =========================
+                // MIN MAX
+                // =========================
+                if (
+                    isset($rule['min']) &&
+                    isset($rule['max'])
+                ) {
+
+                    // TERLALU RENDAH
+                    if ($value < $rule['min']) {
+
+                        $parameterScore = 0;
+
+                        $severity = abs($rule['min'] - $value);
+
+                        $dominantParameters[] = [
+                            'parameter' => $parameter,
+                            'severity' => $severity
+                        ];
+
+                        $warnings[] = [
+                            'parameter' => $parameter,
+                            'danger' => $rule['low_danger'] ?? '',
+                            'suggestion' => $rule['low_suggestion'] ?? '',
+                        ];
+
+                    }
+
+                    // TERLALU TINGGI
+                    elseif ($value > $rule['max']) {
+
+                        $parameterScore = 0;
+
+                        $severity = abs($value - $rule['max']);
+
+                        $dominantParameters[] = [
+                            'parameter' => $parameter,
+                            'severity' => $severity
+                        ];
+
+                        $warnings[] = [
+                            'parameter' => $parameter,
+                            'danger' => $rule['high_danger'] ?? '',
+                            'suggestion' => $rule['high_suggestion'] ?? '',
+                        ];
+
+                    }
+
+                }
+
+                // =========================
+                // MAX ONLY
+                // =========================
+                elseif (isset($rule['max'])) {
+
+                    if ($value > $rule['max']) {
+
+                        $parameterScore = 0;
+
+                        $severity = abs($value - $rule['max']);
+
+                        $dominantParameters[] = [
+                            'parameter' => $parameter,
+                            'severity' => $severity
+                        ];
+
+                        $warnings[] = [
+                            'parameter' => $parameter,
+                            'danger' => $rule['high_danger'] ?? '',
+                            'suggestion' => $rule['high_suggestion'] ?? '',
+                        ];
+
+                    }
+
+                }
+
+                // =========================
+                // HITUNG SAW
+                // =========================
+                $sawScore += ($parameterScore * $weight);
+
+            }
+
+        @endphp
+
+        @endforeach
+
+        @php
+
+        // =========================
+        // FINAL SAW
+        // =========================
+
+        $finalSaw = 0;
+
+        if ($totalWeight > 0) {
+
+            $finalSaw = ($sawScore / $totalWeight) * 100;
+
+        }
+
+        // =========================
+        // KATEGORI SAW
+        // =========================
+
+        if ($finalSaw >= 80) {
+
+            $sawCategory = 'Kualitas Sangat Baik';
+
+        } elseif ($finalSaw >= 60) {
+
+            $sawCategory = 'Kualitas Baik';
+
+        } elseif ($finalSaw >= 40) {
+
+            $sawCategory = 'Kualitas Sedang';
+
+        } else {
+
+            $sawCategory = 'Kualitas Buruk';
+
+        }
+
+        // =========================
+        // CRITICAL RULE
+        // =========================
+
+        $criticalFailed = false;
+
+        foreach ($rows as $row) {
+
+            $parameter = $row[0];
+            $value = (float)$row[1];
+
+            $rule = $standards[$parameter] ?? null;
+
+            if ($rule) {
+
+                if (
+                    isset($rule['critical_min']) &&
+                    $value < $rule['critical_min']
+                ) {
+
+                    $criticalFailed = true;
+
+                }
+
+                if (
+                    isset($rule['critical_max']) &&
+                    $value > $rule['critical_max']
+                ) {
+
+                    $criticalFailed = true;
+
+                }
+
+            }
+
+        }
+
+        // =========================
+        // HYBRID DECISION
+        // =========================
+
+        $hybridLayak = false;
+
+        if (
+
+            !$criticalFailed &&
+
+            (
+                $finalSaw >= 70 ||
+                ($isLayak && $finalSaw >= 60)
+            )
+
+        ) {
+
+            $hybridLayak = true;
+
+        }
+
+        @endphp
+
+        <!-- HERO RESULT -->
         <div style="
-            background: {{ $isLayak
+            background: {{ $hybridLayak
                 ? 'linear-gradient(90deg,#3A929C,#5BABD0)'
                 : 'linear-gradient(90deg,#DC2626,#B91C1C)'
             }};
             color:white;
-            padding:30px;
-            border-radius:25px;
+            padding:40px;
+            border-radius:28px;
             margin:30px 0;
+            box-shadow:0 10px 30px rgba(0,0,0,0.08);
         ">
 
-            <h1>
-                AIR {{ $isLayak ? 'LAYAK' : 'TIDAK LAYAK' }} KONSUMSI
+            <div style="
+                font-size:18px;
+                opacity:0.9;
+                margin-bottom:10px;
+            ">
+                Final Hybrid Decision
+            </div>
+
+            <h1 style="
+                font-size:42px;
+                margin-bottom:15px;
+            ">
+                {{ $hybridLayak
+                    ? 'LAYAK KONSUMSI'
+                    : 'TIDAK LAYAK KONSUMSI'
+                }}
             </h1>
 
-            <!-- PROBABILITY -->
-            <div style="
-                background:white;
-                color:#5BABD0;
-                padding:10px 22px;
-                border-radius:20px;
-                display:inline-block;
-                margin-top:10px;
-                font-weight:600;
-                line-height:1.6;
+            <p style="
+                max-width:700px;
+                margin:0 auto;
+                line-height:1.8;
+                opacity:0.95;
+                font-size:15px;
             ">
 
-                Probabilitas {{ $probability }}%
+                @if($hybridLayak)
 
-                <br>
+                    Air memenuhi sebagian besar parameter standar
+                    kualitas air konsumsi berdasarkan analisis
+                    Random Forest dan metode SAW.
 
-                <span style="
-                    font-size:13px;
-                    font-weight:500;
-                    opacity:0.8;
+                @else
+
+                    Air tidak direkomendasikan untuk dikonsumsi
+                    karena terdapat parameter yang berada di luar
+                    standar keamanan kualitas air.
+
+                @endif
+
+            </p>
+
+            <!-- MINI INFO -->
+            <div style="
+                display:flex;
+                justify-content:center;
+                gap:15px;
+                flex-wrap:wrap;
+                margin-top:25px;
+            ">
+
+                <!-- RF -->
+                <div style="
+                    background:white;
+                    color:#5BABD0;
+                    padding:12px 22px;
+                    border-radius:18px;
+                    min-width:180px;
                 ">
-                    Confidence: {{ $confidence }}
-                </span>
+                    <div style="font-size:13px; opacity:0.7;">
+                        Random Forest
+                    </div>
+
+                    <div style="font-size:20px; font-weight:700;">
+                        {{ $probability }}%
+                    </div>
+
+                    <div style="font-size:13px;">
+                        Confidence: {{ $confidence }}
+                    </div>
+                </div>
+
+                <!-- SAW -->
+                <div style="
+                    background:white;
+                    color:#5BABD0;
+                    padding:12px 22px;
+                    border-radius:18px;
+                    min-width:180px;
+                ">
+                    <div style="font-size:13px; opacity:0.7;">
+                        SAW Quality Score
+                    </div>
+
+                    <div style="font-size:20px; font-weight:700;">
+                        {{ number_format($finalSaw,1) }}/100
+                    </div>
+
+                    <div style="font-size:13px;">
+                        {{ $sawCategory }}
+                    </div>
+                </div>
 
             </div>
 
         </div>
 
-        <!-- DESCRIPTION -->
-        <p style="
-            color:#5BABD0;
-            max-width:700px;
-            margin:0 auto 40px;
-            line-height:1.7;
-        ">
-            *Berdasarkan analisis algoritma
-            <b>Random Forest</b>,
-            parameter air yang Anda masukkan
+        <!-- PARAMETER BERMASALAH -->
+        @if(count($warnings) > 0)
 
-            {{ $isLayak
-                ? 'memenuhi standar baku mutu kesehatan dan aman digunakan dengan perebusan.'
-                : 'tidak memenuhi standar dan tidak disarankan untuk dikonsumsi.'
-            }}
-        </p>
-
-        <!-- TABLE TITLE -->
-        <h3 style="
-            color:#5BABD0;
-            margin-bottom:15px;
-        ">
-            Tabel Hasil (The Proof)
-        </h3>
-
-        <!-- TABLE CARD -->
         <div style="
             background:rgba(255,255,255,0.5);
             backdrop-filter:blur(10px);
-            border-radius:20px;
-            padding:20px;
+            border-radius:22px;
+            padding:25px;
+            margin-bottom:30px;
+            text-align:left;
         ">
+
+            <h3 style="
+                color:#DC2626;
+                margin-bottom:18px;
+            ">
+                Parameter yang Perlu Diperhatikan
+            </h3>
+
+            @foreach($warnings as $warning)
+
+            <div style="
+                padding:15px 18px;
+                border-radius:16px;
+                background:rgba(255,255,255,0.5);
+                margin-bottom:15px;
+            ">
+
+                <div style="
+                    font-weight:700;
+                    color:#DC2626;
+                    margin-bottom:8px;
+                ">
+                    ⚠️ {{ $warning['parameter'] }}
+                </div>
+
+                <div style="
+                    color:#5BABD0;
+                    line-height:1.7;
+                    font-size:14px;
+                ">
+                    {{ $warning['danger'] }}
+                </div>
+
+                <div style="
+                    margin-top:10px;
+                    font-size:14px;
+                    color:#5BABD0;
+                ">
+                    <b>Saran:</b>
+                    {{ $warning['suggestion'] }}
+                </div>
+
+            </div>
+
+            @endforeach
+
+        </div>
+
+        @endif
+
+        <!-- DETAIL ANALISIS -->
+        <div style="
+            background:rgba(255,255,255,0.5);
+            backdrop-filter:blur(10px);
+            border-radius:22px;
+            padding:25px;
+            margin-bottom:30px;
+        ">
+
+            <h3 style="
+                color:#5BABD0;
+                margin-bottom:20px;
+            ">
+                Detail Analisis Parameter
+            </h3>
 
             <table style="
                 width:100%;
@@ -139,7 +471,6 @@
                 font-size:14px;
             ">
 
-                <!-- HEADER -->
                 <tr style="
                     background:#5BABD0;
                     color:white;
@@ -151,26 +482,6 @@
                     <th>Status</th>
                 </tr>
 
-                @php
-
-                $warnings = [];
-
-                $dominantParameters = [];
-
-                $rows = [
-                    ['pH', $data['ph'] ?? '-'],
-                    ['Hardness', $data['hardness'] ?? '-'],
-                    ['TDS', $data['solids'] ?? '-'],
-                    ['Chloramines', $data['chloramines'] ?? '-'],
-                    ['Sulfate', $data['sulfate'] ?? '-'],
-                    ['Conductivity', $data['conductivity'] ?? '-'],
-                    ['Trihalomethanes', $data['trihalomethanes'] ?? '-'],
-                    ['Turbidity', $data['turbidity'] ?? '-'],
-                ];
-
-                @endphp
-
-                <!-- LOOP -->
                 @foreach($rows as $i => $row)
 
                 @php
@@ -183,94 +494,25 @@
                     $status = 'Normal';
                     $icon = '✔️';
 
-                    // =========================
-                    // RULE CHECKING
-                    // =========================
                     if ($rule) {
 
-                        // =========================
-                        // MIN MAX
-                        // =========================
                         if (
                             isset($rule['min']) &&
-                            isset($rule['max'])
+                            $value < $rule['min']
                         ) {
 
-                            // =========================
-                            // TERLALU RENDAH
-                            // =========================
-                            if ($value < $rule['min']) {
-
-                                $status = $rule['low_status'] ?? 'Terlalu Rendah';
-
-                                $icon = '⚠️';
-
-                                $severity = abs($rule['min'] - $value);
-
-                                $dominantParameters[] = [
-                                    'parameter' => $parameter,
-                                    'severity' => $severity
-                                ];
-
-                                $warnings[] = [
-                                    'parameter' => $parameter,
-                                    'danger' => $rule['low_danger'] ?? '',
-                                    'suggestion' => $rule['low_suggestion'] ?? '',
-                                ];
-
-                            }
-
-                            // =========================
-                            // TERLALU TINGGI
-                            // =========================
-                            elseif ($value > $rule['max']) {
-
-                                $status = $rule['high_status'] ?? 'Terlalu Tinggi';
-
-                                $icon = '⚠️';
-
-                                $severity = abs($value - $rule['max']);
-
-                                $dominantParameters[] = [
-                                    'parameter' => $parameter,
-                                    'severity' => $severity
-                                ];
-
-                                $warnings[] = [
-                                    'parameter' => $parameter,
-                                    'danger' => $rule['high_danger'] ?? '',
-                                    'suggestion' => $rule['high_suggestion'] ?? '',
-                                ];
-
-                            }
+                            $status = $rule['low_status'] ?? 'Rendah';
+                            $icon = '⚠️';
 
                         }
 
-                        // =========================
-                        // MAX ONLY
-                        // =========================
-                        elseif (isset($rule['max'])) {
+                        elseif (
+                            isset($rule['max']) &&
+                            $value > $rule['max']
+                        ) {
 
-                            if ($value > $rule['max']) {
-
-                                $status = $rule['high_status'] ?? 'Terlalu Tinggi';
-
-                                $icon = '⚠️';
-
-                                $severity = abs($value - $rule['max']);
-
-                                $dominantParameters[] = [
-                                    'parameter' => $parameter,
-                                    'severity' => $severity
-                                ];
-
-                                $warnings[] = [
-                                    'parameter' => $parameter,
-                                    'danger' => $rule['high_danger'] ?? '',
-                                    'suggestion' => $rule['high_suggestion'] ?? '',
-                                ];
-
-                            }
+                            $status = $rule['high_status'] ?? 'Tinggi';
+                            $icon = '⚠️';
 
                         }
 
@@ -278,7 +520,6 @@
 
                 @endphp
 
-                <!-- ROW -->
                 <tr style="
                     border-bottom:1px solid #ddd;
                 ">
@@ -313,101 +554,6 @@
 
         </div>
 
-        <!-- SORT DOMINANT -->
-        @php
-
-        usort($dominantParameters, function($a, $b) {
-            return $b['severity'] <=> $a['severity'];
-        });
-
-        $topDominants = array_slice($dominantParameters, 0, 3);
-
-        @endphp
-
-        <!-- DOMINANT PARAMETER -->
-        @if(count($topDominants) > 0)
-
-        <div style="
-            margin-top:30px;
-            background:rgba(255,255,255,0.5);
-            backdrop-filter:blur(10px);
-            border-radius:20px;
-            padding:25px;
-            text-align:left;
-        ">
-
-            <h3 style="
-                color:#5BABD0;
-                margin-bottom:20px;
-            ">
-                Parameter Paling Berpengaruh
-            </h3>
-
-            @foreach($topDominants as $dominant)
-
-            <div style="
-                margin-bottom:12px;
-                color:#5BABD0;
-                font-size:16px;
-                font-weight:600;
-            ">
-                ⚠️ {{ $dominant['parameter'] }}
-            </div>
-
-            @endforeach
-
-        </div>
-
-        @endif
-
-        <!-- WARNING ANALYSIS -->
-        @if(count($warnings) > 0)
-
-        <div style="
-            margin-top:30px;
-            text-align:left;
-            background:rgba(255,255,255,0.5);
-            backdrop-filter:blur(10px);
-            border-radius:20px;
-            padding:25px;
-        ">
-
-            <h3 style="
-                color:#DC2626;
-                margin-bottom:20px;
-            ">
-                Analisis & Rekomendasi
-            </h3>
-
-            @foreach($warnings as $warning)
-
-            <div style="
-                margin-bottom:20px;
-                color:#5BABD0;
-                line-height:1.7;
-            ">
-
-                <b>
-                    ⚠️ {{ $warning['parameter'] }}
-                </b>
-
-                <p>
-                    {{ $warning['danger'] }}
-                </p>
-
-                <p>
-                    <b>Saran:</b>
-                    {{ $warning['suggestion'] }}
-                </p>
-
-            </div>
-
-            @endforeach
-
-        </div>
-
-        @endif
-
         <!-- VISUALIZATION -->
         <div style="
             margin-top:30px;
@@ -440,7 +586,12 @@
         </p>
 
         <!-- BUTTON -->
-        <form action="{{ route('export.pdf') }}" method="POST">
+        <form
+            action="{{ route('export.pdf') }}"
+            method="POST"
+            target="_blank"
+        >
+        
 
             @csrf
 
@@ -453,13 +604,18 @@
 
             <button type="submit" style="
                 margin-top:30px;
-                background:#5BABD0;
+                background: {{ $hybridLayak
+                    ? 'linear-gradient(90deg,#3A929C,#5BABD0)'
+                    : 'linear-gradient(90deg,#DC2626,#B91C1C)'
+                }};
                 color:white;
-                padding:12px 40px;
+                padding:14px 42px;
                 border:none;
-                border-radius:15px;
+                border-radius:18px;
                 cursor:pointer;
-                font-weight:600;
+                font-weight:700;
+                font-size:14px;
+                box-shadow:0 10px 20px rgba(0,0,0,0.08);
             ">
                 Download PDF
             </button>
@@ -470,7 +626,6 @@
 
 </section>
 
-<!-- CHART JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -511,16 +666,7 @@ new Chart(ctx, {
 
             ],
 
-            backgroundColor: [
-                '#5BABD0',
-                '#5BABD0',
-                '#5BABD0',
-                '#5BABD0',
-                '#5BABD0',
-                '#5BABD0',
-                '#5BABD0',
-                '#5BABD0'
-            ],
+            backgroundColor: '#5BABD0',
 
             borderRadius: 10
 

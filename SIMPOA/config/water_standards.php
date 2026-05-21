@@ -6,6 +6,10 @@ return [
     // pH
     // =========================
     'pH' => [
+        'weight' => 0.20,
+
+        'critical_min' => 5,
+        'critical_max' => 10,
 
         'min' => 6.5,
         'max' => 8.5,
@@ -33,6 +37,7 @@ return [
     // HARDNESS
     // =========================
     'Hardness' => [
+        'weight' => 0.10,
 
         'max' => 500,
 
@@ -52,6 +57,9 @@ return [
     // TDS
     // =========================
     'TDS' => [
+        'weight' => 0.15,
+
+        'critical_max' => 1000,
 
         'max' => 500,
 
@@ -71,6 +79,9 @@ return [
     // CHLORAMINES
     // =========================
     'Chloramines' => [
+        'weight' => 0.10,
+
+        'critical_max' => 6,
 
         'min' => 0.2,
         'max' => 4,
@@ -98,6 +109,9 @@ return [
     // SULFATE
     // =========================
     'Sulfate' => [
+        'weight' => 0.10,
+
+        'critical_max' => 500,
 
         'max' => 250,
 
@@ -117,6 +131,10 @@ return [
     // CONDUCTIVITY
     // =========================
     'Conductivity' => [
+        'weight' => 0.10,
+
+        'critical_min' => 20,
+        'critical_max' => 800,
 
         'min' => 50,
         'max' => 400,
@@ -144,6 +162,9 @@ return [
     // TRIHALOMETHANES
     // =========================
     'Trihalomethanes' => [
+        'weight' => 0.15,
+
+        'critical_max' => 120,
 
         'max' => 80,
 
@@ -163,6 +184,9 @@ return [
     // TURBIDITY
     // =========================
     'Turbidity' => [
+        'weight' => 0.10,
+
+        'critical_max' => 10,
 
         'min' => 0,
         'max' => 5,
