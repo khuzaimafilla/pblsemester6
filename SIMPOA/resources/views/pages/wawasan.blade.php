@@ -34,6 +34,7 @@
         </div>
 
         @php
+        // Data untuk 9 kotak
         $analyses = [
             [
                 'prediction'=>'AIR LAYAK KONSUMSI',
@@ -41,24 +42,96 @@
                 'ph'=>7.2,
                 'hardness'=>180,
                 'solids'=>440,
-                'param_name'=>'Keasaman (pH)',
+                'param_name'=>'Derajat Keasaman (pH)',
                 'param_desc'=>'Derajat keasaman air dengan rentang aman 6.5–8.5. pH tidak stabil memicu korosi pipa jika terlalu asam atau rasa pahit sabun jika terlalu basa.'
+            ],
+            [
+                'prediction'=>'AIR LAYAK KONSUMSI',
+                'probability'=>'92.3%',
+                'ph'=>7.0,
+                'hardness'=>175,
+                'solids'=>430,
+                'param_name'=>'Kesadahan (Hardness)',
+                'param_desc'=>'Mengukur kadar mineral kalsium dan magnesium dalam air. Air dengan kesadahan tinggi dapat menyebabkan penumpukan kerak pada pipa dan peralatan dapur, serta membuat sabun sulit berbusa.'
+            ],
+            [
+                'prediction'=>'AIR LAYAK KONSUMSI',
+                'probability'=>'94.7%',
+                'ph'=>7.4,
+                'hardness'=>185,
+                'solids'=>450,
+                'param_name'=>'TDS (Total Dissolved Solids)',
+                'param_desc'=>'Indikator jumlah total mineral, garam, dan logam yang terlarut. TDS yang terlalu tinggi dapat memengaruhi rasa air menjadi payau atau pahit dan menandakan adanya polutan terlarut.'
+            ],
+            [
+                'prediction'=>'AIR LAYAK KONSUMSI',
+                'probability'=>'89.2%',
+                'ph'=>6.9,
+                'hardness'=>190,
+                'solids'=>460,
+                'param_name'=>'Kloramin (Chloramines)',
+                'param_desc'=>'Senyawa disinfektan hasil reaksi klorin dan amonia. Berfungsi membunuh bakteri selama distribusi air di pipa. Kadar yang berlebihan dapat menyebabkan aroma menyengat dan iritasi kulit ringan.'
+            ],
+            [
+                'prediction'=>'AIR LAYAK KONSUMSI',
+                'probability'=>'95.1%',
+                'ph'=>7.3,
+                'hardness'=>178,
+                'solids'=>435,
+                'param_name'=>'Sulfat (Sulfate)',
+                'param_desc'=>'Senyawa alami yang berasal dari mineral tanah. Dalam kadar tinggi, sulfat dapat memberikan efek pencahar (diare) dan memberikan rasa "medis" atau pahit pada air minum.'
+            ],
+            [
+                'prediction'=>'AIR LAYAK KONSUMSI',
+                'probability'=>'91.8%',
+                'ph'=>7.1,
+                'hardness'=>182,
+                'solids'=>445,
+                'param_name'=>'Daya Hantar Listrik (Conductivity)',
+                'param_desc'=>'Mengukur kemampuan air menghantarkan listrik berdasarkan jumlah ion terlarut. Semakin tinggi nilainya, semakin banyak kandungan mineral atau polutan logam dalam air tersebut.'
+            ],
+            [
+                'prediction'=>'AIR LAYAK KONSUMSI',
+                'probability'=>'93.4%',
+                'ph'=>7.2,
+                'hardness'=>177,
+                'solids'=>438,
+                'param_name'=>'Karbon Organik Total (TOC)',
+                'param_desc'=>'Mengukur jumlah karbon dalam senyawa organik. TOC merupakan indikator kebersihan air dari zat organik (seperti sisa tanaman atau limbah) yang bisa menjadi sumber makanan bagi bakteri.'
+            ],
+            [
+                'prediction'=>'AIR LAYAK KONSUMSI',
+                'probability'=>'97.2%',
+                'ph'=>7.5,
+                'hardness'=>172,
+                'solids'=>425,
+                'param_name'=>'Trihalometana (THMs)',
+                'param_desc'=>'Produk sampingan yang terbentuk saat klorin bereaksi dengan zat organik. Senyawa ini harus dipantau ketat karena bersifat karsinogenik (pemicu kanker) jika dikonsumsi jangka panjang.'
+            ],
+            [
+                'prediction'=>'AIR LAYAK KONSUMSI',
+                'probability'=>'90.5%',
+                'ph'=>6.8,
+                'hardness'=>195,
+                'solids'=>470,
+                'param_name'=>'Kekeruhan (Turbidity)',
+                'param_desc'=>'Menunjukkan tingkat kejernihan air. Air yang keruh dapat melindungi bakteri dari proses disinfeksi sinar UV atau klorin, sehingga air harus tetap jernih untuk menjamin keamanan biologis.'
             ],
         ];
         @endphp
 
-        <!-- GRID -->
+        <!-- GRID - 3 kolom per baris (9 kotak total) -->
         <div style="
             display:grid;
-            grid-template-columns:1fr 1fr;
+            grid-template-columns:1fr 1fr 1fr;
             gap:28px;
         ">
 
-            @for ($i=0; $i<6; $i++)
             @foreach($analyses as $item)
 
             <div style="
                 display:flex;
+                flex-direction:column;
                 background:rgba(255,255,255,0.4);
                 backdrop-filter: blur(10px);
                 border-radius:18px;
@@ -66,55 +139,24 @@
                 box-shadow:0 8px 25px rgba(0,0,0,0.05);
             ">
 
-                <!-- LEFT -->
+                <!-- TOP - GAMBAR Hasil Analisis (dari image.png) -->
                 <div style="
-                    width:50%;
-                    padding:16px;
+                    width:100%;
                     background:rgba(255,255,255,0.6);
                 ">
-
-                    <div style="
-                        background:#5BABD0;
-                        color:white;
-                        text-align:center;
-                        padding:6px;
-                        font-size:12px;
-                        border-radius:6px;
-                        margin-bottom:10px;
-                    ">
-                        Hasil Analisis
-                    </div>
-
-                    <div style="
-                        background:#3A929C;
-                        color:white;
-                        padding:12px;
-                        border-radius:10px;
-                        text-align:center;
-                        font-weight:600;
-                        margin-bottom:10px;
-                    ">
-                        {{ $item['prediction'] }}
-                        <div style="font-size:12px; opacity:0.8;">
-                            Probabilitas {{ $item['probability'] }}
-                        </div>
-                    </div>
-
-                    <table style="width:100%; font-size:12px; color:#5BABD0;">
-                        <tr><td>pH</td><td>{{ $item['ph'] }}</td></tr>
-                        <tr><td>Hardness</td><td>{{ $item['hardness'] }}</td></tr>
-                        <tr><td>TDS</td><td>{{ $item['solids'] }}</td></tr>
-                    </table>
-
+                    <img src="{{ asset('storage/image.png') }}" 
+                         alt="Hasil Analisis" 
+                         style="width:100%; height:auto; display:block;">
                 </div>
 
-                <!-- RIGHT -->
-                <div style="padding:20px; flex:1;">
+                <!-- BOTTOM - Penjelasan Parameter -->
+                <div style="padding:20px;">
 
                     <div style="
                         font-weight:700;
                         color:#3A929C;
                         margin-bottom:10px;
+                        font-size:18px;
                     ">
                         {{ $item['param_name'] }}
                     </div>
@@ -132,7 +174,6 @@
             </div>
 
             @endforeach
-            @endfor
 
         </div>
 
