@@ -24,23 +24,20 @@
     // CONFIDENCE LEVEL
     // =========================
     if ($probability >= 90) {
-
-        $confidence = 'Sangat Yakin';
-
-    } elseif ($probability >= 75) {
-
-        $confidence = 'Yakin';
-
-    } elseif ($probability >= 60) {
-
-        $confidence = 'Cukup';
-
-    } else {
-
-        $confidence = 'Rendah';
-
+        $confidence='Sangat Tinggi';
     }
-
+    elseif ($probability >= 75) {
+        $confidence='Tinggi';
+    }
+    elseif ($probability >= 55) {
+        $confidence='Sedang';
+    }
+    elseif ($probability >= 45) {
+        $confidence='Cukup';
+    }
+    else {
+        $confidence='Rendah';
+    }
 @endphp
 
 <section style="min-height:100vh; padding:60px 0; text-align:center;">

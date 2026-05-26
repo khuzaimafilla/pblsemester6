@@ -135,19 +135,27 @@ class WaterAnalysisController extends Controller
 
         if ($probability >= 90) {
 
-            $confidence = 'Sangat Yakin';
+            $confidence='Sangat Tinggi';
 
-        } elseif ($probability >= 75) {
+        }
+        elseif ($probability >=75){
 
-            $confidence = 'Yakin';
+            $confidence='Tinggi';
 
-        } elseif ($probability >= 60) {
+        }
+        elseif($probability >=55){
 
-            $confidence = 'Cukup';
+            $confidence='Sedang';
 
-        } else {
+        }
+        elseif($probability >=45){
 
-            $confidence = 'Rendah';
+            $confidence='Cukup';
+
+        }
+        else{
+
+            $confidence='Rendah';
 
         }
 
@@ -238,14 +246,17 @@ class WaterAnalysisController extends Controller
         // ROWS
         // =========================
         $rows = [
+
             ['pH', $data['ph'] ?? '-'],
             ['Hardness', $data['hardness'] ?? '-'],
             ['TDS', $data['solids'] ?? '-'],
             ['Chloramines', $data['chloramines'] ?? '-'],
             ['Sulfate', $data['sulfate'] ?? '-'],
             ['Conductivity', $data['conductivity'] ?? '-'],
+            ['OrganicCarbon', $data['organic_carbon'] ?? '-'],
             ['Trihalomethanes', $data['trihalomethanes'] ?? '-'],
             ['Turbidity', $data['turbidity'] ?? '-'],
+
         ];
 
         // =========================

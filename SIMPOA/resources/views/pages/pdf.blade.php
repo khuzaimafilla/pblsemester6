@@ -1,407 +1,337 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <meta charset="utf-8">
+<meta charset="utf-8">
 
-    <title>Sertifikat SIMPOA</title>
+<style>
 
-    <style>
+body{
 
-        body {
+font-family:DejaVu Sans,sans-serif;
+margin:0;
+padding:20px;
+color:#1E293B;
 
-            font-family: DejaVu Sans, sans-serif;
+}
 
-            margin: 0;
+.container{
 
-            padding: 35px;
+border:2px solid #D6E4F0;
+padding:25px;
 
-            color: #1E293B;
+}
 
-            background: white;
+.header{
 
-        }
+width:100%;
+margin-bottom:20px;
 
-        .page {
+}
 
-            border: 6px solid #D6E4F0;
+.logo{
 
-            padding: 45px;
+width:95px;
+float:left;
 
-            min-height: 92vh;
+margin-left:15px;
+margin-top:5px;
+margin-right:15px;
 
-            position: relative;
+}
 
-        }
+.header-text{
 
-        .watermark {
+margin-left:10px;
 
-            position: absolute;
+}
 
-            top: 180px;
+.title{
 
-            left: 400px;
+font-size:24px;
+font-weight:bold;
+color:#3A929C;
 
-            width: 600px;
+}
 
-            opacity: 0.3;
+.subtitle{
 
-        }
+font-size:11px;
+color:#64748B;
 
-        .header {
+}
 
-            text-align: center;
+.cert-number{
 
-        }
+font-size:11px;
+margin-top:5px;
 
-        .logo {
+}
 
-            width: 90px;
+.clear{
 
-            margin-bottom: 10px;
+clear:both;
 
-        }
+}
 
-        .small-title {
+.status-box{
 
-            font-size: 13px;
+margin-top:20px;
+padding:15px;
+border-radius:10px;
+text-align:center;
+background:
+{{ $hybridLayak
+?'#E0F7FA'
+:'#FEE2E2'
+}};
 
-            color: #64748B;
+}
 
-            letter-spacing: 1px;
+.status{
 
-        }
+font-size:28px;
+font-weight:bold;
 
-        .main-title {
+color:
+{{ $hybridLayak
+?'#3A929C'
+:'#DC2626'
+}};
 
-            font-size: 30px;
+}
 
-            font-weight: bold;
+.summary{
 
-            margin-top: 10px;
+margin-top:20px;
 
-            color: #3A929C;
+}
 
-        }
+.summary td{
 
-        .certificate-number {
+width:25%;
+padding:10px;
+text-align:center;
+border:1px solid #E2E8F0;
 
-            margin-top: 10px;
+}
 
-            font-size: 13px;
+.parameter-title{
 
-            color: #64748B;
+margin-top:25px;
+font-size:16px;
+font-weight:bold;
 
-        }
+}
 
-        .line {
+table{
 
-            width: 120px;
+width:100%;
+border-collapse:collapse;
 
-            height: 3px;
+}
 
-            background: #5BABD0;
+th{
 
-            margin: 18px auto;
+background:#5BABD0;
+color:white;
+padding:10px;
+font-size:12px;
 
-            border-radius: 10px;
+}
 
-        }
+td{
 
-        .content {
+padding:8px;
+border:1px solid #E2E8F0;
+font-size:11px;
 
-            margin-top: 35px;
+}
 
-            text-align: center;
+.footer{
 
-            line-height: 1.9;
+margin-top:25px;
+font-size:10px;
+text-align:center;
+color:#64748B;
 
-        }
+}
 
-        .status {
+.signature{
 
-            margin-top: 25px;
+margin-top:35px;
+float:right;
+width:180px;
+text-align:center;
 
-            font-size: 34px;
+}
 
-            font-weight: bold;
+.line{
 
-            color:
-                {{ $hybridLayak
-                    ? '#3A929C'
-                    : '#DC2626'
-                }};
+margin-top:50px;
+border-top:1px solid black;
 
-        }
+}
 
-        .description {
-
-            margin-top: 20px;
-
-            font-size: 14px;
-
-            color: #475569;
-
-            line-height: 1.9;
-
-        }
-
-        .info-box {
-
-            margin-top: 40px;
-
-            background: #F8FAFC;
-
-            border-radius: 18px;
-
-            padding: 25px;
-
-        }
-
-        table {
-
-            width: 100%;
-
-            border-collapse: collapse;
-
-        }
-
-        td {
-
-            padding: 10px 0;
-
-            border-bottom: 1px solid #E2E8F0;
-
-            font-size: 13px;
-
-        }
-
-        .label {
-
-            width: 40%;
-
-            color: #64748B;
-
-        }
-
-        .value {
-
-            font-weight: bold;
-
-            color: #1E293B;
-
-        }
-
-        .footer {
-
-            margin-top: 60px;
-
-            width: 100%;
-
-        }
-
-        .signature {
-
-            width: 250px;
-
-            text-align: center;
-
-            float: right;
-
-        }
-
-        .signature-line {
-
-            margin-top: 70px;
-
-            border-top: 1px solid #94A3B8;
-
-            padding-top: 10px;
-
-            font-size: 13px;
-
-        }
-
-        .official {
-
-            margin-top: 35px;
-
-            font-size: 12px;
-
-            color: #64748B;
-
-            text-align: center;
-
-            line-height: 1.8;
-
-        }
-
-    </style>
+</style>
 
 </head>
 
 <body>
 
-<div class="page">
+<div class="container">
 
-    <!-- WATERMARK -->
-    <img
-        src="{{ public_path('images/logo-simpoa.png') }}"
-        class="watermark"
-    >
+<div class="header">
 
-    <!-- HEADER -->
-    <div class="header">
+<img
+src="{{ public_path('images/logo-simpoa.png') }}"
+class="logo"
+>
 
-        <img
-            src="{{ public_path('images/logo-simpoa.png') }}"
-            class="logo"
-        >
+<div class="header-text">
 
-        <div class="small-title">
-            SMART INTELLIGENT MONITORING
-        </div>
+<div class="title">
 
-        <div class="main-title">
-            SERTIFIKAT ANALISIS AIR
-        </div>
+SERTIFIKAT ANALISIS AIR
 
-        <div class="certificate-number">
+</div>
 
-            No.
-            {{ date('dmY') }}/SIMPOA/{{ rand(100,999) }}
+<div class="subtitle">
 
-        </div>
+SMART INTELLIGENT MONITORING POTABILITY OF WATER
 
-        <div class="line"></div>
+</div>
 
-    </div>
+<div class="cert-number">
 
-    <!-- CONTENT -->
-    <div class="content">
+No:
+{{ date('dmY') }}/SIMPOA/{{ rand(100,999) }}
 
-        <p>
-            Berdasarkan hasil analisis kualitas air menggunakan
-            kombinasi metode <b>Random Forest</b>,
-            <b>Simple Additive Weighting (SAW)</b>,
-            dan validasi parameter standar kualitas air,
-            sistem menyatakan bahwa:
-        </p>
+</div>
 
-        <div class="status">
+</div>
 
-            {{ $hybridLayak
-                ? 'LAYAK KONSUMSI'
-                : 'TIDAK LAYAK KONSUMSI'
-            }}
+</div>
 
-        </div>
+<div class="clear"></div>
 
-        <div class="description">
+<div class="status-box">
 
-            @if($hybridLayak)
+<div class="status">
 
-                Air memenuhi sebagian besar parameter
-                standar kualitas air konsumsi berdasarkan
-                hasil analisis sistem SIMPOA.
+{{ $hybridLayak
+?
+'LAYAK KONSUMSI'
+:
+'TIDAK LAYAK KONSUMSI'
+}}
 
-            @else
+</div>
 
-                Air tidak memenuhi standar kualitas air
-                konsumsi karena terdapat parameter
-                yang berada di luar batas keamanan.
+</div>
 
-            @endif
+<table class="summary">
 
-        </div>
+<tr>
 
-    </div>
+<td>
 
-    <!-- INFO -->
-    <div class="info-box">
+<b>AI</b><br>
 
-        <table>
+{{ $probability }}%
 
-            <tr>
-                <td class="label">
-                    Tanggal Analisis
-                </td>
+</td>
 
-                <td class="value">
-                    {{ now()->format('d F Y') }}
-                </td>
-            </tr>
+<td>
 
-            <tr>
-                <td class="label">
-                    Probabilitas AI
-                </td>
+<b>Confidence</b><br>
 
-                <td class="value">
-                    {{ $probability }}%
-                </td>
-            </tr>
+{{ $confidence }}
 
-            <tr>
-                <td class="label">
-                    Confidence Level
-                </td>
+</td>
 
-                <td class="value">
-                    {{ $confidence }}
-                </td>
-            </tr>
+<td>
 
-            <tr>
-                <td class="label">
-                    SAW Quality Score
-                </td>
+<b>SAW</b><br>
 
-                <td class="value">
-                    {{ number_format($finalSaw,1) }}/100
-                </td>
-            </tr>
+{{ number_format(
+$finalSaw,
+1
+) }}/100
 
-            <tr>
-                <td class="label">
-                    Kategori Kualitas
-                </td>
+</td>
 
-                <td class="value">
-                    {{ $sawCategory }}
-                </td>
-            </tr>
+<td>
 
-        </table>
+<b>Kategori</b><br>
 
-    </div>
+{{ $sawCategory }}
 
-    <!-- FOOTER -->
-    <div class="footer">
+</td>
 
-        <div class="signature">
+</tr>
 
-            <div class="signature-line">
+</table>
 
-                SIMPOA Validation System
+<div class="parameter-title">
 
-            </div>
+HASIL PARAMETER AIR
 
-        </div>
+</div>
 
-    </div>
+<table>
 
-    <!-- OFFICIAL -->
-    <div class="official">
+<tr>
 
-        Sertifikat ini dihasilkan secara otomatis oleh sistem
-        Smart Intelligent Monitoring Potability of Water (SIMPOA)
-        berdasarkan parameter analisis kualitas air.
+<th>Parameter</th>
+<th>Nilai</th>
+<th>Standar</th>
 
-    </div>
+</tr>
+
+@foreach($rows as $row)
+
+<tr>
+
+<td>{{ $row[0] }}</td>
+
+<td>{{ $row[1] }}</td>
+
+<td>
+
+{{ $standards[$row[0]]['label'] ?? '-' }}
+
+</td>
+
+</tr>
+
+@endforeach
+
+</table>
+
+<div class="signature">
+
+<img
+src="{{ public_path('images/ttd-simpoa.png') }}"
+style="
+
+width:300px;
+margin-bottom:-100px;
+
+">
+
+<div class="line"></div>
+
+</div>
+
+<div class="clear"></div>
+
+<div class="footer">
+
+Sertifikat ini dihasilkan otomatis oleh sistem SIMPOA
+
+</div>
 
 </div>
 
 </body>
-
 </html>
