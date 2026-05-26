@@ -61,14 +61,17 @@
         $totalWeight = 0;
 
         $rows = [
+
             ['pH', $data['ph'] ?? '-'],
             ['Hardness', $data['hardness'] ?? '-'],
             ['TDS', $data['solids'] ?? '-'],
             ['Chloramines', $data['chloramines'] ?? '-'],
             ['Sulfate', $data['sulfate'] ?? '-'],
             ['Conductivity', $data['conductivity'] ?? '-'],
+            ['OrganicCarbon', $data['organic_carbon'] ?? '-'],
             ['Trihalomethanes', $data['trihalomethanes'] ?? '-'],
             ['Turbidity', $data['turbidity'] ?? '-'],
+
         ];
 
         @endphp
@@ -92,88 +95,106 @@
 
                 $totalWeight += $weight;
 
-                $parameterScore = 1;
+                        // =========================
+                        // SCORING SAW BERTINGKAT
+                        // =========================
 
-                // =========================
-                // MIN MAX
-                // =========================
-                if (
-                    isset($rule['min']) &&
-                    isset($rule['max'])
-                ) {
+                        $parameterScore = 1;
 
-                    // TERLALU RENDAH
-                    if ($value < $rule['min']) {
+                        if(isset($rule['score_rules'])){
 
-                        $parameterScore = 0;
+                            $parameterScore = 0;
 
-                        $severity = abs($rule['min'] - $value);
+                            foreach($rule['score_rules'] as $scoreRule){
 
-                        $dominantParameters[] = [
-                            'parameter' => $parameter,
-                            'severity' => $severity
-                        ];
+                                $min = (float)$scoreRule['min'];
+                                $max = (float)$scoreRule['max'];
 
-                        $warnings[] = [
-                            'parameter' => $parameter,
-                            'danger' => $rule['low_danger'] ?? '',
-                            'suggestion' => $rule['low_suggestion'] ?? '',
-                        ];
+                                if(
+                                    $value >= $min &&
+                                    $value <= $max
+                                ){
 
-                    }
+                                    $parameterScore =
+                                    (float)$scoreRule['score'];
 
-                    // TERLALU TINGGI
-                    elseif ($value > $rule['max']) {
+                                    break;
 
-                        $parameterScore = 0;
+                                }
 
-                        $severity = abs($value - $rule['max']);
+                            }
 
-                        $dominantParameters[] = [
-                            'parameter' => $parameter,
-                            'severity' => $severity
-                        ];
+                        }
 
-                        $warnings[] = [
-                            'parameter' => $parameter,
-                            'danger' => $rule['high_danger'] ?? '',
-                            'suggestion' => $rule['high_suggestion'] ?? '',
-                        ];
+                        // =========================
+                        // WARNING TETAP JALAN
+                        // =========================
 
-                    }
+                        if (
+                            isset($rule['min']) &&
+                            $value < $rule['min']
+                        ) {
 
-                }
+                            $severity = abs(
+                                $rule['min'] - $value
+                            );
 
-                // =========================
-                // MAX ONLY
-                // =========================
-                elseif (isset($rule['max'])) {
+                            $dominantParameters[] = [
 
-                    if ($value > $rule['max']) {
+                                'parameter'=>$parameter,
+                                'severity'=>$severity
 
-                        $parameterScore = 0;
+                            ];
 
-                        $severity = abs($value - $rule['max']);
+                            $warnings[]=[
 
-                        $dominantParameters[] = [
-                            'parameter' => $parameter,
-                            'severity' => $severity
-                        ];
+                                'parameter'=>$parameter,
+                                'danger'=>$rule['low_danger'] ?? '',
+                                'suggestion'=>$rule['low_suggestion'] ?? ''
 
-                        $warnings[] = [
-                            'parameter' => $parameter,
-                            'danger' => $rule['high_danger'] ?? '',
-                            'suggestion' => $rule['high_suggestion'] ?? '',
-                        ];
+                            ];
 
-                    }
+                        }
 
-                }
+                        elseif(
 
-                // =========================
-                // HITUNG SAW
-                // =========================
-                $sawScore += ($parameterScore * $weight);
+                            isset($rule['max']) &&
+                            $value > $rule['max']
+
+                        ){
+
+                            $severity = abs(
+                                $value - $rule['max']
+                            );
+
+                            $dominantParameters[]=[
+
+                                'parameter'=>$parameter,
+                                'severity'=>$severity
+
+                            ];
+
+                            $warnings[]=[
+
+                                'parameter'=>$parameter,
+                                'danger'=>$rule['high_danger'] ?? '',
+                                'suggestion'=>$rule['high_suggestion'] ?? ''
+
+                            ];
+
+                        }
+
+
+                        // =========================
+                        // HITUNG SAW
+                        // =========================
+
+                        $sawScore +=
+                        (
+                            $parameterScore
+                            *
+                            $weight
+                        );
 
             }
 
@@ -602,6 +623,30 @@
             <input type="hidden" name="data"
                 value='@json($data)'>
 
+            <!-- BUTTON KEMBALI -->
+
+            <a
+                href="{{ route('form') }}"
+                style="
+                    display:inline-block;
+                    margin-top:30px;
+                    margin-right:15px;
+                    background:white;
+                    color:#5BABD0;
+                    padding:14px 42px;
+                    border:2px solid #5BABD0;
+                    border-radius:18px;
+                    text-decoration:none;
+                    font-weight:700;
+                    font-size:14px;
+                    box-shadow:0 10px 20px rgba(0,0,0,0.08);
+                "
+            >
+
+                ← Kembali ke Input
+
+            </a>
+
             <button type="submit" style="
                 margin-top:30px;
                 background: {{ $hybridLayak
@@ -639,30 +684,32 @@ new Chart(ctx, {
     data: {
 
         labels: [
-            'pH',
-            'Hardness',
-            'TDS',
-            'Chloramines',
-            'Sulfate',
-            'Conductivity',
-            'Trihalomethanes',
-            'Turbidity'
+        'pH',
+        'Hardness',
+        'TDS',
+        'Chloramines',
+        'Sulfate',
+        'Conductivity',
+        'TOC',
+        'Trihalomethanes',
+        'Turbidity'
         ],
 
         datasets: [{
 
             label: 'Nilai Parameter',
 
-            data: [
+            data:[
 
-                {{ $data['ph'] ?? 0 }},
-                {{ $data['hardness'] ?? 0 }},
-                {{ $data['solids'] ?? 0 }},
-                {{ $data['chloramines'] ?? 0 }},
-                {{ $data['sulfate'] ?? 0 }},
-                {{ $data['conductivity'] ?? 0 }},
-                {{ $data['trihalomethanes'] ?? 0 }},
-                {{ $data['turbidity'] ?? 0 }}
+            {{ $data['ph'] ?? 0 }},
+            {{ $data['hardness'] ?? 0 }},
+            {{ $data['solids'] ?? 0 }},
+            {{ $data['chloramines'] ?? 0 }},
+            {{ $data['sulfate'] ?? 0 }},
+            {{ $data['conductivity'] ?? 0 }},
+            {{ $data['organic_carbon'] ?? 0 }},
+            {{ $data['trihalomethanes'] ?? 0 }},
+            {{ $data['turbidity'] ?? 0 }}
 
             ],
 

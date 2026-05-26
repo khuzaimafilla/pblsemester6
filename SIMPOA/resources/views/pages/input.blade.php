@@ -31,6 +31,114 @@
 
         </div>
 
+        <!-- SECTION UPLOAD EXCEL -->
+        <div style="
+            background:#F7FCFE;
+            border:1px solid rgba(91,171,208,.2);
+            border-radius:25px;
+            padding:30px;
+            margin-bottom:35px;
+            box-shadow:0 8px 20px rgba(0,0,0,.04);
+        ">
+
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                flex-wrap:wrap;
+                gap:20px;
+            ">
+
+                <!-- TEXT -->
+                <div>
+
+                    <h3 style="
+                        color:#3A929C;
+                        margin-bottom:8px;
+                        font-size:24px;
+                        font-weight:700;
+                    ">
+                        Upload Data Excel
+                    </h3>
+
+                    <p style="
+                        color:#5BABD0;
+                        margin:0;
+                        line-height:1.7;
+                        max-width:600px;
+                    ">
+                        Upload datasheet hasil pengujian air untuk
+                        mengisi data kandungan secara otomatis.
+                        Gunakan format template yang telah disediakan.
+                    </p>
+
+                </div>
+
+
+                <!-- BUTTON AREA -->
+                <div style="
+                    display:flex;
+                    gap:15px;
+                    flex-wrap:wrap;
+                ">
+
+                    <!-- DOWNLOAD TEMPLATE -->
+                    <a href="{{ route('download.template') }}"
+                    style="
+                        border:2px solid #5BABD0;
+                        color:#5BABD0;
+                        padding:12px 24px;
+                        border-radius:15px;
+                        text-decoration:none;
+                        font-weight:600;
+                        transition:.3s;
+                    "
+                    onmouseover="
+                        this.style.background='#5BABD0';
+                        this.style.color='#fff';
+                    "
+                    onmouseout="
+                        this.style.background='transparent';
+                        this.style.color='#5BABD0';
+                    ">
+                        Download Template
+                    </a>
+
+
+                    <!-- UPLOAD BUTTON -->
+                    <label style="
+                        background:#5BABD0;
+                        color:white;
+                        padding:12px 24px;
+                        border-radius:15px;
+                        cursor:pointer;
+                        font-weight:600;
+                        transition:.3s;
+                    "
+                    onmouseover="
+                        this.style.background='#3A929C';
+                    "
+                    onmouseout="
+                        this.style.background='#5BABD0';
+                    ">
+
+                        Upload Datasheet
+
+                        <input
+                            type="file"
+                            id="excelFile"
+                            accept=".xlsx,.xls"
+                            style="display:none;"
+                        >
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
         <!-- FORM CARD -->
         <div style="
             background:rgba(255,255,255,0.5);
@@ -94,6 +202,7 @@
                         type="number"
                         step="any"
 
+                        id="{{ $f[0] }}"
                         name="{{ $f[0] }}"
 
                         placeholder="Contoh: {{ $f[3] }}"
@@ -425,6 +534,86 @@
 
 </div>
 
+<!-- ALERT EXCEL -->
+<div id="excelModal" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.25);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+">
+
+    <div style="
+        width:500px;
+        background:white;
+        border-radius:25px;
+        overflow:hidden;
+        font-family:Montserrat;
+        box-shadow:0 15px 40px rgba(0,0,0,0.15);
+    ">
+
+        <!-- HEADER -->
+        <div
+        id="excelModalTitle"
+
+        style="
+            background:#5BABD0;
+            color:white;
+            padding:20px 25px;
+            font-size:24px;
+            font-weight:600;
+        ">
+            Informasi
+        </div>
+
+        <!-- BODY -->
+        <div
+        id="excelModalMessage"
+
+        style="
+            padding:40px 35px;
+            text-align:center;
+            color:#5BABD0;
+            font-size:20px;
+            line-height:1.6;
+        ">
+        </div>
+
+        <!-- BUTTON -->
+        <div style="
+            text-align:center;
+            padding-bottom:35px;
+        ">
+
+            <button
+                onclick="closeExcelModal()"
+
+                style="
+                    background:#5BABD0;
+                    color:white;
+                    border:none;
+                    padding:14px 55px;
+                    border-radius:20px;
+                    font-size:18px;
+                    cursor:pointer;
+                    font-weight:600;
+                "
+            >
+                Oke
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
 <style>
 
 @keyframes spin {
@@ -445,35 +634,61 @@
 
 function validateForm()
 {
-    const inputs = document.querySelectorAll('input');
+    // hanya ambil input angka manual
+    const inputs = document.querySelectorAll(
+        'input[type="number"]'
+    );
 
     let valid = true;
 
-    inputs.forEach(input => {
+    inputs.forEach(input=>{
 
-        if(input.value.trim() === '')
+        if(input.value.trim()==='')
         {
-            valid = false;
+            valid=false;
+            return;
         }
 
-        const min = parseFloat(input.min);
-        const max = parseFloat(input.max);
-        const value = parseFloat(input.value);
+        const value=parseFloat(
+            input.value
+        );
 
-        if(value < min || value > max)
-        {
-            valid = false;
+        const min=parseFloat(
+            input.min
+        );
+
+        const max=parseFloat(
+            input.max
+        );
+
+        if(
+
+            isNaN(value)
+            ||
+            value<min
+            ||
+            value>max
+
+        ){
+
+            valid=false;
+
         }
 
     });
 
-    if(!valid)
-    {
-        document.getElementById('infoModal').style.display = 'flex';
+    if(!valid){
+
+        document.getElementById(
+            'infoModal'
+        ).style.display='flex';
+
         return;
     }
 
-    document.getElementById('confirmModal').style.display = 'flex';
+    document.getElementById(
+        'confirmModal'
+    ).style.display='flex';
 }
 
 function closeInfoModal()
@@ -484,6 +699,13 @@ function closeInfoModal()
 function closeConfirmModal()
 {
     document.getElementById('confirmModal').style.display = 'none';
+}
+
+function closeExcelModal()
+{
+    document.getElementById(
+        'excelModal'
+    ).style.display='none';
 }
 
 function submitForm()
@@ -503,6 +725,126 @@ function submitForm()
 
     // SUBMIT FORM
     document.querySelector('form').submit();
+}
+
+</script>
+<!-- LIBRARY EXCEL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+
+document.getElementById("excelFile")
+.addEventListener("change", function(e){
+
+    let file = e.target.files[0];
+
+    if(!file) return;
+
+    let reader = new FileReader();
+
+    reader.onload = function(event){
+
+        try{
+
+            let workbook = XLSX.read(
+                event.target.result,
+                { type:'binary' }
+            );
+
+            let sheet =
+            workbook.Sheets[
+                workbook.SheetNames[0]
+            ];
+
+            let data =
+            XLSX.utils.sheet_to_json(sheet);
+
+            console.log(data);
+
+            if(data.length > 0){
+
+                let row = data[0];
+
+                // otomatis isi berdasarkan id form
+
+                document.getElementById("ph").value =
+                row.ph || '';
+
+                document.getElementById("hardness").value =
+                row.Hardness || row.hardness || '';
+
+                document.getElementById("solids").value =
+                row.Solids || row.solids || '';
+
+                document.getElementById("chloramines").value =
+                row.Chloramines || row.chloramines || '';
+
+                document.getElementById("sulfate").value =
+                row.Sulfate || row.sulfate || '';
+
+                document.getElementById("conductivity").value =
+                row.Conductivity || row.conductivity || '';
+
+                document.getElementById("organic_carbon").value =
+                row.Organic_carbon || row.organic_carbon || '';
+
+                document.getElementById("trihalomethanes").value =
+                row.Trihalomethanes || row.trihalomethanes || '';
+
+                document.getElementById("turbidity").value =
+                row.Turbidity || row.turbidity || '';
+
+                showExcelModal(
+                "✓ Berhasil",
+                "Data Excel berhasil dimuat dan form telah terisi otomatis"
+                );
+
+            }else{
+
+                showExcelModal(
+                "⚠ Informasi",
+                "File Excel yang diunggah kosong"
+                );
+
+            }
+
+        }
+        catch(error){
+
+            console.log(error);
+
+            showExcelModal(
+            "✕ Gagal",
+            "Terjadi kesalahan saat membaca file Excel"
+            );
+
+        }
+
+    };
+
+    reader.readAsBinaryString(file);
+
+});
+
+function showExcelModal(title,message)
+{
+    document.getElementById(
+    'excelModalTitle'
+    ).innerText=title;
+
+    document.getElementById(
+    'excelModalMessage'
+    ).innerText=message;
+
+    document.getElementById(
+    'excelModal'
+    ).style.display='flex';
+}
+
+function closeExcelModal()
+{
+    document.getElementById(
+    'excelModal'
+    ).style.display='none';
 }
 
 </script>

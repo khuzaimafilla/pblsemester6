@@ -14,6 +14,34 @@ return [
         'min' => 6.5,
         'max' => 8.5,
 
+        'score_rules' => [
+
+        [
+            'min'=>6.5,
+            'max'=>8.5,
+            'score'=>1
+        ],
+
+        [
+            'min'=>6,
+            'max'=>9,
+            'score'=>0.8
+        ],
+
+        [
+            'min'=>5,
+            'max'=>10,
+            'score'=>0.5
+        ],
+
+        [
+            'min'=>0,
+            'max'=>14,
+            'score'=>0
+        ]
+
+    ],
+
         'label' => '6.5 - 8.5',
 
         'low_status' => 'Terlalu Asam',
@@ -41,6 +69,35 @@ return [
 
         'max' => 500,
 
+        'score_rules'=>[
+
+        [
+            'min'=>0,
+            'max'=>150,
+            'score'=>1
+        ],
+
+        [
+            'min'=>151,
+            'max'=>300,
+            'score'=>0.8
+        ],
+
+        [
+            'min'=>301,
+            'max'=>500,
+            'score'=>0.5
+        ],
+
+        [
+            'min'=>501,
+            'max'=>10000,
+            'score'=>0
+        ]
+
+    ],
+
+
         'label' => '< 500 mg/L',
 
         'high_status' => 'Kesadahan Tinggi',
@@ -62,6 +119,35 @@ return [
         'critical_max' => 1000,
 
         'max' => 500,
+
+                'score_rules'=>[
+
+    [
+        'min'=>0,
+        'max'=>300,
+        'score'=>1
+    ],
+
+    [
+        'min'=>301,
+        'max'=>500,
+        'score'=>0.8
+    ],
+
+    [
+        'min'=>501,
+        'max'=>1000,
+        'score'=>0.5
+    ],
+
+    [
+        'min'=>1001,
+        'max'=>10000,
+        'score'=>0
+    ]
+
+],
+
 
         'label' => '< 500 ppm',
 
@@ -85,6 +171,35 @@ return [
 
         'min' => 0.2,
         'max' => 4,
+
+                'score_rules'=>[
+
+        [
+            'min'=>0.2,
+            'max'=>4,
+            'score'=>1
+        ],
+
+        [
+            'min'=>0.1,
+            'max'=>5,
+            'score'=>0.8
+        ],
+
+        [
+            'min'=>0,
+            'max'=>6,
+            'score'=>0.5
+        ],
+
+        [
+            'min'=>6.1,
+            'max'=>100,
+            'score'=>0
+        ]
+
+    ],
+
 
         'label' => '0.2 - 4 ppm',
 
@@ -115,6 +230,35 @@ return [
 
         'max' => 250,
 
+                'score_rules'=>[
+
+    [
+        'min'=>0,
+        'max'=>150,
+        'score'=>1
+    ],
+
+    [
+        'min'=>151,
+        'max'=>250,
+        'score'=>0.8
+    ],
+
+    [
+        'min'=>251,
+        'max'=>500,
+        'score'=>0.5
+    ],
+
+    [
+        'min'=>501,
+        'max'=>10000,
+        'score'=>0
+    ]
+
+],
+
+
         'label' => '< 250 mg/L',
 
         'high_status' => 'Sulfat Tinggi',
@@ -139,6 +283,35 @@ return [
         'min' => 50,
         'max' => 400,
 
+                'score_rules'=>[
+
+    [
+        'min'=>50,
+        'max'=>400,
+        'score'=>1
+    ],
+
+    [
+        'min'=>30,
+        'max'=>500,
+        'score'=>0.8
+    ],
+
+    [
+        'min'=>20,
+        'max'=>800,
+        'score'=>0.5
+    ],
+
+    [
+        'min'=>0,
+        'max'=>10000,
+        'score'=>0
+    ]
+
+],
+
+
         'label' => '50 - 400 µS/cm',
 
         'low_status' => 'Conductivity Rendah',
@@ -162,11 +335,40 @@ return [
     // TRIHALOMETHANES
     // =========================
     'Trihalomethanes' => [
-        'weight' => 0.15,
+        'weight' => 0.10,
 
         'critical_max' => 120,
 
         'max' => 80,
+
+                'score_rules'=>[
+
+    [
+        'min'=>0,
+        'max'=>60,
+        'score'=>1
+    ],
+
+    [
+        'min'=>61,
+        'max'=>80,
+        'score'=>0.8
+    ],
+
+    [
+        'min'=>81,
+        'max'=>120,
+        'score'=>0.5
+    ],
+
+    [
+        'min'=>121,
+        'max'=>10000,
+        'score'=>0
+    ]
+
+],
+
 
         'label' => '< 80 µg/L',
 
@@ -191,6 +393,35 @@ return [
         'min' => 0,
         'max' => 5,
 
+               'score_rules'=>[
+
+    [
+        'min'=>0,
+        'max'=>3,
+        'score'=>1
+    ],
+
+    [
+        'min'=>3.1,
+        'max'=>5,
+        'score'=>0.8
+    ],
+
+    [
+        'min'=>5.1,
+        'max'=>10,
+        'score'=>0.5
+    ],
+
+    [
+        'min'=>10.1,
+        'max'=>100,
+        'score'=>0
+    ]
+
+],
+
+
         'label' => '0 - 5 NTU',
 
         'high_status' => 'Kekeruhan Tinggi',
@@ -201,6 +432,59 @@ return [
         'high_suggestion' =>
             'Lakukan filtrasi dan perebusan sebelum konsumsi.',
 
+ 
     ],
+
+    // =========================
+// ORGANIC CARBON (TOC)
+// =========================
+
+'OrganicCarbon' => [
+
+    'weight' => 0.05,
+
+    'critical_max' => 25,
+
+    'max' => 15,
+
+    'score_rules'=>[
+
+        [
+            'min'=>0,
+            'max'=>10,
+            'score'=>1
+        ],
+
+        [
+            'min'=>11,
+            'max'=>15,
+            'score'=>0.75
+        ],
+
+        [
+            'min'=>16,
+            'max'=>25,
+            'score'=>0.5
+        ],
+
+        [
+            'min'=>26,
+            'max'=>100,
+            'score'=>0
+        ]
+
+    ],
+
+    'label'=>'< 15 ppm',
+
+    'high_status'=>'TOC Tinggi',
+
+    'high_danger'=>
+    'Kadar karbon organik tinggi dapat mengindikasikan kontaminasi bahan organik.',
+
+    'high_suggestion'=>
+    'Lakukan filtrasi tambahan dan pemeriksaan sumber air.'
+
+],
 
 ];

@@ -32,3 +32,11 @@ Route::get('/form', [WaterAnalysisController::class, 'form'])->name('form');
 Route::post('/analyze', [WaterAnalysisController::class, 'analyze'])->name('analyze');
 Route::get('/hasil', [WaterAnalysisController::class, 'hasil'])->name('hasil');
 Route::post('/export-pdf', [WaterAnalysisController::class, 'exportPdf'])->name('export.pdf');
+
+Route::get('/download-template', function () {
+
+    return response()->download(
+        public_path('template/template_air_SIMPOA.xlsx')
+    );
+
+})->name('download.template');
