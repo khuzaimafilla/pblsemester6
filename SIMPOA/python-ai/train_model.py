@@ -1,289 +1,168 @@
 import pandas as pd
 import pickle
-import numpy as np
 
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
-
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
-    confusion_matrix,
-    precision_score,
-    recall_score,
-    f1_score
+    confusion_matrix
 )
 
 # =====================================================
-# HEADER
+# 1. LOAD DATASET
 # =====================================================
 
 print("=================================================")
 print("      SISTEM PREDIKSI KELAYAKAN AIR SIMPOA")
 print("=================================================")
 
-
-# =====================================================
-# LOAD DATASET
-# =====================================================
-
+# Membaca dataset
 df = pd.read_csv('dataset_simpoa.csv')
 
-print("\nDataset berhasil dibaca")
-print(f"Jumlah data : {len(df)}")
-
+print(f"\nDataset berhasil dibaca. Jumlah total: {len(df)} data")
 
 # =====================================================
-# CEK DATA KOSONG
+# 2. RULE-BASED WATER QUALITY SCORE
+# =====================================================
+
+def calculate_score(row):
+    score = 0
+    # Menggunakan .get() agar aman jika ada kolom yang sedikit berbeda penamaannya
+    if 6.5 <= row.get('ph', 0) <= 8.5: score += 1
+    if row.get('Hardness', 0) <= 500: score += 1
+    if row.get('Solids', 0) <= 500: score += 1
+    if 0.2 <= row.get('Chloramines', 0) <= 4: score += 1
+    if row.get('Sulfate', 0) <= 250: score += 1
+    if 50 <= row.get('Conductivity', 0) <= 400: score += 1
+    if row.get('Organic_carbon', 0) <= 2: score += 1
+    if row.get('Trihalomethanes', 0) <= 80: score += 1
+    if row.get('Turbidity', 0) <= 5: score += 1
+    return score
+
+# Tambahkan feature baru
+df['Water_Quality_Score'] = df.apply(calculate_score, axis=1)
+
+print("Water Quality Score berhasil ditambahkan")
+
+# =====================================================
+# 3. BUAT TARGET POTABILITY (ANTI-ERROR)
+# =====================================================
+
+# Jika tidak ada label Potability dari awal, kita buatkan otomatis
+if 'Potability' not in df.columns:
+    if 'Skor_SAW' in df.columns:
+        # Jika ada data SAW, gunakan median skor SAW
+        median_score = df['Skor_SAW'].median()
+        df['Potability'] = (df['Skor_SAW'] >= median_score).astype(int)
+        print("Kolom 'Potability' otomatis dibuat berdasarkan median Skor_SAW.")
+    else:
+        # Jika tidak ada SAW, gunakan Water Quality Score (Minimal skor 5 dianggap layak)
+        df['Potability'] = (df['Water_Quality_Score'] >= 5).astype(int)
+        print("Kolom 'Potability' otomatis dibuat berdasarkan Water Quality Score.")
+
+# =====================================================
+# 4. CEK DATA KOSONG
 # =====================================================
 
 print("\n=================================================")
 print("PENGECEKAN DATA KOSONG")
 print("=================================================")
 
-print(df.isnull().sum())
-
+missing = df.isnull().sum()
+print(missing)
 
 # =====================================================
-# MEMISAHKAN FITUR DAN TARGET
+# 5. MEMISAHKAN FEATURE DAN TARGET
 # =====================================================
 
-X = df.drop('Potability', axis=1)
+# Daftar kolom yang dilarang masuk sebagai fitur (agar tidak bocor ke model)
+kolom_dihapus = ['Potability', 'ActivityIdentifier', 'Skor_SAW', 'Peringkat']
+
+# Filter cerdas: Hanya menghapus kolom yang benar-benar ada di dataframe
+kolom_yg_dihapus_valid = [col for col in kolom_dihapus if col in df.columns]
+
+X = df.drop(columns=kolom_yg_dihapus_valid)
 y = df['Potability']
 
 print("\n=================================================")
 print("PEMISAHAN DATA")
 print("=================================================")
 
-print(f"Jumlah fitur : {len(X.columns)}")
-
-print("\nFitur:")
-
-for i in X.columns:
-    print("-",i)
-
+print("Feature  : Data kondisi kualitas air")
+print("Target   : Status kelayakan air minum")
 
 # =====================================================
-# SPLIT DATA
+# 6. SPLIT DATA
 # =====================================================
 
 X_train, X_test, y_train, y_test = train_test_split(
-
     X,
     y,
-
     test_size=0.2,
-
-    random_state=42,
-
-    stratify=y
-
+    random_state=42
 )
 
 print("\n=================================================")
 print("PEMBAGIAN DATA")
 print("=================================================")
 
-print(f"Training : {len(X_train)}")
-print(f"Testing  : {len(X_test)}")
-
-
-# =====================================================
-# HANDLE MISSING VALUE
-# =====================================================
-
-imputer = SimpleImputer(
-    strategy='median'
-)
-
-X_train = imputer.fit_transform(
-    X_train
-)
-
-X_test = imputer.transform(
-    X_test
-)
-
-print("\nData kosong berhasil ditangani")
-
+print(f"Data training : {len(X_train)} data")
+print(f"Data testing  : {len(X_test)} data")
 
 # =====================================================
-# MODEL RANDOM FOREST
+# 7. HANDLE MISSING VALUE
 # =====================================================
 
-print("\n=================================================")
-print("PEMBUATAN MODEL")
-print("=================================================")
+imputer = SimpleImputer(strategy='mean')
+
+X_train = imputer.fit_transform(X_train)
+X_test = imputer.transform(X_test)
+
+print("\nProses pengisian data kosong selesai.")
+
+# =====================================================
+# 8. MEMBUAT & TRAINING MODEL RANDOM FOREST
+# =====================================================
 
 model = RandomForestClassifier(
-
-    n_estimators=1000,
-
-    max_depth=20,
-
-    min_samples_split=5,
-
-    min_samples_leaf=2,
-
-    max_features='sqrt',
-
-    random_state=42,
-
-    class_weight='balanced',
-
-    n_jobs=-1
+    n_estimators=100,
+    max_depth=10,
+    random_state=42
 )
-
-print("Model : Random Forest")
-
-
-# =====================================================
-# TRAINING
-# =====================================================
 
 print("\n=================================================")
-print("TRAINING")
+print("PROSES TRAINING MODEL")
 print("=================================================")
 
-model.fit(
-    X_train,
-    y_train
-)
-
+print("Model sedang mempelajari pola kualitas air...")
+model.fit(X_train, y_train)
 print("Training selesai")
 
-
 # =====================================================
-# PREDIKSI
-# =====================================================
-
-y_pred = model.predict(
-    X_test
-)
-
-y_prob = model.predict_proba(
-    X_test
-)
-
-confidence = np.max(
-    y_prob,
-    axis=1
-)
-
-print("\n========== Confidence Analysis ==========")
-
-low = sum(confidence < 0.6)
-
-medium = sum(
-    (confidence >=0.6)
-    &
-    (confidence <0.8)
-)
-
-high = sum(
-    confidence >=0.8
-)
-
-print(
-f"Rendah : {low}"
-)
-
-print(
-f"Sedang : {medium}"
-)
-
-print(
-f"Tinggi : {high}"
-)
-
-
-# =====================================================
-# EVALUASI
+# 9. EVALUASI MODEL
 # =====================================================
 
-accuracy = accuracy_score(
-    y_test,
-    y_pred
-)
-
-precision = precision_score(
-    y_test,
-    y_pred
-)
-
-recall = recall_score(
-    y_test,
-    y_pred
-)
-
-f1 = f1_score(
-    y_test,
-    y_pred
-)
-
+y_pred = model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
 
 print("\n=================================================")
-print("HASIL EVALUASI")
+print("HASIL EVALUASI MODEL")
 print("=================================================")
-
-print(
-f"Accuracy : {accuracy*100:.2f}%"
-)
-
-print(
-f"Precision : {precision*100:.2f}%"
-)
-
-print(
-f"Recall : {recall*100:.2f}%"
-)
-
-print(
-f"F1 Score : {f1*100:.2f}%"
-)
-
-print(
-f"Confidence rata-rata : {confidence.mean()*100:.2f}%"
-)
-
+print(f"Akurasi Model: {accuracy * 100:.2f}%")
 
 # =====================================================
-# CONFUSION MATRIX
-# =====================================================
-
-print("\n=================================================")
-print("CONFUSION MATRIX")
-print("=================================================")
-
-cm = confusion_matrix(
-    y_test,
-    y_pred
-)
-
-print(cm)
-
-
-# =====================================================
-# CLASSIFICATION REPORT
+# 10. CLASSIFICATION REPORT & CONFUSION MATRIX
 # =====================================================
 
 print("\n=================================================")
 print("CLASSIFICATION REPORT")
 print("=================================================")
-
-print(
-
-classification_report(
-    y_test,
-    y_pred
-)
-
-)
-
+print(classification_report(y_test, y_pred))
 
 # =====================================================
-# FEATURE IMPORTANCE
+# 11. FITUR PALING BERPENGARUH
 # =====================================================
 
 print("\n=================================================")
@@ -291,82 +170,20 @@ print("FITUR PALING BERPENGARUH")
 print("=================================================")
 
 importance = model.feature_importances_
-
-for feature,score in zip(
-
-    X.columns,
-    importance
-
-):
-
-    print(
-
-    f"{feature}: {score:.4f}"
-
-    )
-
+for feature, score in zip(X.columns, importance):
+    print(f"{feature} : {score:.4f}")
 
 # =====================================================
-# SIMPAN MODEL
+# 12. SIMPAN MODEL + IMPUTER
 # =====================================================
 
-with open(
-    'model.pkl',
-    'wb'
-) as f:
-
+with open('model.pkl', 'wb') as f:
     pickle.dump({
-
-        'model':model,
-
-        'imputer':imputer,
-
-        'features':list(
-            X.columns
-        )
-
-    },f)
-
+        'model': model,
+        'imputer': imputer
+    }, f)
 
 print("\n=================================================")
-print("MODEL BERHASIL DISIMPAN")
+print("PENYIMPANAN MODEL SELESAI")
 print("=================================================")
-
-print("model.pkl berhasil dibuat")
-
-
-# =====================================================
-# KESIMPULAN
-# =====================================================
-
-print("\n=================================================")
-print("KESIMPULAN")
-print("=================================================")
-
-if accuracy>=0.90:
-
-    print(
-    "Model memiliki performa sangat baik"
-    )
-
-elif accuracy>=0.80:
-
-    print(
-    "Model memiliki performa baik"
-    )
-
-elif accuracy>=0.70:
-
-    print(
-    "Model memiliki performa cukup baik"
-    )
-
-else:
-
-    print(
-    "Model perlu ditingkatkan"
-    )
-
-print(
-"\nModel siap digunakan pada SIMPOA"
-)
+print("Model & imputer berhasil disimpan ke model.pkl")
