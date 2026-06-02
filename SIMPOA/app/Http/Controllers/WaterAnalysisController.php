@@ -92,10 +92,15 @@ class WaterAnalysisController extends Controller
         // =========================
         // RUN PYTHON AI
         // =========================
-        $process = new Process([
-            'C:/laragon/bin/python/python-3.13/python.exe',
-            base_path('python-ai/predict.py'),
-            json_encode($input)
+        $pythonPath = env('PYTHON_PATH', 'python');
+
+        $scriptPath = base_path('python-ai/predict.py');
+
+        $process = new Process([ 
+        $pythonPath, 
+        $scriptPath, 
+        json_encode($input) 
+        
         ]);
 
         // =========================
