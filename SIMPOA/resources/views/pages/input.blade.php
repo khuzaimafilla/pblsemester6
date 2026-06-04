@@ -156,15 +156,15 @@
 
                 $fields = [
 
-                    ['ph','Derajat Keasaman (pH)','Skala 0-14','7.05',0,14],
+                    ['ph','pH','Skala 0-14','7.05',0,14],
 
-                    ['hardness','Kesadahan','mg/L','185.20',0,1000],
+                    ['hardness','Hardness','mg/L','185.20',0,1000],
 
-                    ['solids','TDS','ppm','15000',0,50000],
+                    ['solids','Solids','ppm','15000',0,50000],
 
-                    ['chloramines','Kloramin','ppm','7.12',0,20],
+                    ['chloramines','Chloramines','ppm','7.12',0,20],
 
-                    ['sulfate','Sulfat','mg/L','330',0,1000],
+                    ['sulfate','Sulfate','mg/L','330',0,1000],
 
                     ['conductivity','Conductivity','µS/cm','450',0,2000],
 
