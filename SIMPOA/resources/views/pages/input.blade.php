@@ -172,7 +172,7 @@
 
                     ['trihalomethanes','Trihalometana','µg/L','65',0,300],
 
-                    ['turbidity','Turbidity','NTU','3.8',0,100],
+                    ['turbidity','Turbidity','NTU','3.8',-1000,100],
 
                 ];
 
