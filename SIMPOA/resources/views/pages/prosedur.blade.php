@@ -114,17 +114,17 @@
 
         <div class="step-grid">
             <div>
-                <img src="{{ asset('assets/input parameter kelayakan air.png') }}" alt="Step 1">
+                <img src="{{ asset('assets/input-variabel excel.png') }}" alt="Step 1">
             </div>
 
             <div>
-                <div class="step-title">1. Input Parameter Kualitas Air</div>
+                <div class="step-title">1. Input Parameter (Manual atau Unggah Excel)</div>
                 <p class="step-desc">
-                    Langkah pertama dimulai dengan memasukkan data hasil pengujian sampel air
-                    ke dalam formulir digital yang tersedia. Pengguna diminta untuk mengisi 9 parameter
-                    utama termasuk nilai pH, kadar zat kimia, dan tingkat kekeruhan sesuai dengan hasil uji
-                    laboratorium atau pembacaan sensor. Ketelitian data pada tahap ini sangat
-                    menentukan akurasi prediksi akhir dari sistem.
+                    Langkah pertama dimulai dengan memasukkan data hasil pengujian sampel air. Pilih metode input 
+                    yang paling nyaman untuk Anda: isi langsung pada form digital atau gunakan fitur Upload Datasheet Excel 
+                    agar semua data terisi secara instan dalam sekali klik. Data yang dimasukkan mencakup 
+                    9 parameter utama (pH, Kesadahan, TDS, Kloramin, Sulfat, Conductivity, TOC, Trihalometana, dan Turbidity) 
+                    sesuai hasil uji laboratorium atau sensor. Ketelitian data pada tahap ini sangat menentukan akurasi prediksi akhir sistem.
                 </p>
             </div>
         </div>
