@@ -445,37 +445,37 @@ return [
 
     'critical_max' => 25,
 
-    'max' => 15,
+    'max' => 2,
 
-    'score_rules'=>[
+        'score_rules'=>[
 
         [
             'min'=>0,
-            'max'=>10,
+            'max'=>2,
             'score'=>1
         ],
 
         [
-            'min'=>11,
-            'max'=>15,
+            'min'=>2.1,
+            'max'=>5,
             'score'=>0.75
         ],
 
         [
-            'min'=>16,
+            'min'=>5.1,
             'max'=>25,
             'score'=>0.5
         ],
 
         [
-            'min'=>26,
+            'min'=>25.1,
             'max'=>100,
             'score'=>0
         ]
 
     ],
 
-    'label'=>'< 15 ppm',
+    'label'=>'< 2 ppm',
 
     'high_status'=>'TOC Tinggi',
 
