@@ -617,6 +617,13 @@
 
             <input type="hidden" name="probability" value="{{ $probability }}">
 
+            <input type="hidden" name="finalSaw" value="{{ $finalSaw }}">
+
+            <input type="hidden" name="sawCategory" value="{{ $sawCategory }}">
+
+            <input type="hidden" name="hybridLayak"
+            value="{{ $hybridLayak ? 1 : 0 }}">
+
             <input type="hidden" name="data"
                 value='@json($data)'>
 
