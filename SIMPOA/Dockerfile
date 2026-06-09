@@ -18,7 +18,7 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
-RUN pip3 install -r python-ai/requirement.txt
+RUN pip3 install --break-system-packages -r requirements.txt
 
 RUN php artisan config:clear
 
