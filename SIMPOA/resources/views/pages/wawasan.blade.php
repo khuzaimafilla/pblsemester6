@@ -3,7 +3,6 @@
 @section('content')
 
 <style>
-    /* --- TAMPILAN UNTUK DI WEB (GRID MODERN) --- */
     .grid-wawasan {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -18,18 +17,15 @@
         box-shadow: 0 8px 25px rgba(0,0,0,0.08);
     }
     .print-certificate-view {
-        display: none; /* Sembunyikan format sertifikat saat berada di website */
+        display: none; 
     }
 
-    /* --- TAMPILAN KHUSUS UNTUK CETAK PDF (Ctrl + P) --- */
     @media print {
-        /* Pengaturan ukuran halaman kertas print browser */
         @page {
             size: A4 portrait;
-            margin: 8mm 10mm 8mm 10mm; /* Memperketat margin kertas agar space naik */
+            margin: 8mm 10mm 8mm 10mm; 
         }
 
-        /* Sembunyikan semua elemen default website termasuk footer bawaan layouts.app */
         nav, .navbar, header, #main-navbar, .navbar-container, .btn-print-section, .grid-wawasan-container, footer, .web-footer { 
             display: none !important; 
         }
@@ -48,17 +44,15 @@
             padding: 0 !important;
         }
 
-        /* Tampilkan Kontainer Sertifikat Berbingkai */
         .print-certificate-view {
             display: block !important;
             border: 2px solid #D6E4F0 !important;
-            padding: 15px 20px !important; /* Memperketat padding agar elemen naik */
+            padding: 15px 20px !important; 
             background: white !important;
             margin: 0 !important;
             border-radius: 4px;
         }
 
-        /* Header / Kop Dokumen */
         .cert-header {
             width: 100%;
             margin-bottom: 10px;
@@ -92,7 +86,6 @@
             clear: both;
         }
 
-        /* Tabel Hasil Parameter */
         .cert-table-title {
             margin-top: 12px;
             font-size: 11.5px !important;
@@ -116,7 +109,7 @@
             text-transform: uppercase;
         }
         .cert-table td {
-            padding: 5px 8px !important; /* Diperketat agar muat dalam 1 halaman */
+            padding: 5px 8px !important; 
             border-bottom: 1px solid #E2E8F0 !important;
             font-size: 9.5px !important;
             line-height: 1.35;
@@ -126,7 +119,6 @@
             page-break-inside: avoid !important;
         }
 
-        /* Badge Batas Aman */
         .badge-batas {
             background-color: #E8F4F8 !important;
             color: #2C7A87 !important;
@@ -143,7 +135,6 @@
             color: #1E293B;
         }
 
-        /* Footer Dokumen Dalam Bingkai */
         .cert-footer {
             margin-top: 12px;
             font-size: 8.5px !important;
@@ -153,7 +144,6 @@
             padding-top: 6px;
         }
 
-        /* Paksa teks copyright buatan sendiri masuk ke bawah teks deskripsi sertifikat */
         .cert-copyright {
             display: block !important;
             text-align: center;
@@ -164,7 +154,6 @@
         }
     }
 
-    /* Sembunyikan copyright print di versi web screen */
     .cert-copyright {
         display: none;
     }
@@ -177,7 +166,7 @@
         <div class="grid-wawasan-header" style="margin-bottom:40px;">
             <h1 style="font-size:42px; font-weight:700; color:#5BABD0; margin-bottom:10px;">Wawasan Kandungan Air</h1>
             <p style="color:#5BABD0; font-size:16px; max-width:600px;">
-                Memahami Parameter Kualitas Air Berdasarkan Standar WHO & Permenkes No. 2 Tahun 2023
+                Memahami Parameter Kualitas Air Berdasarkan Standar WHO
             </p>
         </div>
 
@@ -189,7 +178,7 @@
             ['param_name'=>'Chloramines', 'param_desc'=>'Senyawa disinfektan hasil reaksi klorin dan amonia. Berfungsi membunuh bakteri selama distribusi air di pipa.', 'header_image'=>'assets/kloramin.jpeg', 'batas_aman'=>'< 4', 'satuan'=>'mg/L'],
             ['param_name'=>'Sulfate', 'param_desc'=>'Senyawa alami yang berasal dari mineral tanah. Dalam kadar tinggi, sulfat dapat memberikan efek pencahar (diare).', 'header_image'=>'assets/sulfat.jpg', 'batas_aman'=>'< 250', 'satuan'=>'mg/L'],
             ['param_name'=>'Conductivity', 'param_desc'=>'Mengukur kemampuan air menghantarkan listrik berdasarkan jumlah ion terlarut.', 'header_image'=>'assets/conductivity.jpg', 'batas_aman'=>'< 1000', 'satuan'=>'µS/cm'],
-            ['param_name'=>'TOC', 'param_desc'=>'Mengukur jumlah karbon dalam senyawa organik yang bisa menjadi sumber makanan bagi bakteri.', 'header_image'=>'assets/toc.jpg', 'batas_aman'=>'< 10', 'satuan'=>'mg/L'],
+            ['param_name'=>'TOC', 'param_desc'=>'Mengukur jumlah karbon dalam senyawa organik yang bisa menjadi sumber makanan bagi bakteri.', 'header_image'=>'assets/toc.jpg', 'batas_aman'=>'< 2', 'satuan'=>'mg/L'],
             ['param_name'=>'Trihalometana (THMs)', 'param_desc'=>'Produk sampingan saat klorin bereaksi dengan zat organik. Bersifat karsinogenik jika dikonsumsi jangka panjang.', 'header_image'=>'assets/thms.jpg', 'batas_aman'=>'< 0.1', 'satuan'=>'mg/L'],
             ['param_name'=>'Kekeruhan (Turbidity)', 'param_desc'=>'Menunjukkan tingkat kejernihan air. Air keruh dapat melindungi bakteri dari proses disinfeksi.', 'header_image'=>'assets/turbidity.jpg', 'batas_aman'=>'< 5', 'satuan'=>'NTU']
         ];
@@ -219,7 +208,6 @@
         </div>
     </div>
 
-    <!-- TAMPILAN PRINT SERTIFIKAT -->
     <div class="print-certificate-view">
         
         <div class="cert-header">
@@ -262,10 +250,8 @@
             </tbody>
         </table>
 
-        <!-- Footer Sertifikat Dalam Bingkai -->
         <div class="cert-footer">
             Dokumen panduan parameter ini dihasilkan otomatis oleh sistem SIMPOA untuk referensi batas aman kualitas air konsumsi.
-            <!-- Menyisipkan teks copyright di dalam bingkai halaman pertama -->
             <div class="cert-copyright">
                 SIMPOA - Copyright 2025/2026
             </div>
